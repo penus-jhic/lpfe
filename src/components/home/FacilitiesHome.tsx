@@ -14,7 +14,7 @@ export default function FacilitiesHome() {
     const [active, setActive] = useState(0);
     const { facilities, error, reload } = useFacilities();
     // Hanya fasilitas yang sudah punya foto, supaya slider beranda tidak berisi kotak ikon
-    const photoFacilities = (facilities ?? []).filter((f) => f.images.length > 0);
+    const photoFacilities = (facilities ?? []).filter((f) => (f.images?.length ?? 0) > 0);
 
     return(
         <section className="relative z-10 overflow-hidden bg-white text-brand-ink px-6 py-20 md:py-28">

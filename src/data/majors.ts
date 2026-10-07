@@ -13,6 +13,13 @@ import fotoLandingPKM from "../assets/images/majors/pkm/LandingPagePKM.png";
 import fotoLandingMM from "../assets/images/majors/mm/LandingPageMM.png";
 import fotoLandingTOI from "../assets/images/majors/toi/LandingPageTOI.png";
 
+// ini bagian card hero di halaman jurusan
+import fotoHeroCardImageMM from "../assets/images/majors/mm/fotoMM.png";
+import fotoHeroCardImageRPL from "../assets/images/majors/rpl/fotoRPL.png";
+import fotoHeroCardImageTKJ from "../assets/images/majors/tkj/fotoTKJ.png";
+import fotoHeroCardImagePKM from "../assets/images/majors/pkm/fotoPKM.png";
+import fotoHeroCardImageTOI from "../assets/images/majors/toi/fotoTOI.png";
+
 // MM Photos
 import fotoDevactoMM1 from "../assets/images/majors/mm/devacto-1.jpg";
 import fotoDevactoMM2 from "../assets/images/majors/mm/devacto-2.jpg";
