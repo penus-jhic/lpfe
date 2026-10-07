@@ -145,6 +145,9 @@ export async function apiRequest<T>(path: string, { method = "GET", body, signal
             body: payload,
             signal,
             credentials: "same-origin",
+            // Lewati cache browser: Cloudflare menambahkan "max-age=14400" ke respons API, jadi tanpa ini pengunjung
+            // bisa melihat data lama sampai 4 jam setelah admin menyimpan perubahan. Cache di memori ada di useApi
+            cache: "no-store",
         });
     } catch (error) {
         if (signal?.aborted) throw error;
