@@ -62,13 +62,7 @@ export default function TeacherCard({ teacher, featured = false, delay = 0 }: {
         >
             <SketchBox delay={delay} />
 
-            <TeacherPhoto teacher={teacher} zoom className="aspect-4/5 rounded-card" initialsSize={featured ? "text-7xl" : "text-5xl"}>
-                {teacher.major && (
-                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-brand-darkred">
-                        {teacher.major}
-                    </span>
-                )}
-            </TeacherPhoto>
+            <TeacherPhoto teacher={teacher} zoom className="aspect-4/5 rounded-card" initialsSize={featured ? "text-7xl" : "text-5xl"} />
 
             <div className="flex-1 flex flex-col px-1 pt-4 pb-1">
                 <h3 className={`font-semibold leading-snug ${featured ? "text-lg" : "text-base"}`}>{teacher.name}</h3>

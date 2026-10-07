@@ -37,11 +37,6 @@ export default function KaprogTeachers() {
             {/* Dekorasi titik-titik */}
             <div aria-hidden="true" className="pointer-events-none absolute left-6 bottom-20 hidden md:block w-40 h-28 bg-[radial-gradient(circle,rgb(255_255_255/0.1)_2px,transparent_2.5px)] bg-size-[22px_22px]" />
 
-            {/* Kode jurusan yang sedang dipilih sebagai tulisan besar di latar, sengaja terpotong */}
-            <p key={major.code} aria-hidden="true" className="pointer-events-none select-none absolute -right-4 -bottom-[0.18em] font-display text-[42vw] md:text-[26vw] font-bold uppercase leading-none text-white/4 animate-fade-up">
-                {major.code}
-            </p>
-
             <div className="relative max-w-6xl mx-auto">
                 <div className="grid gap-4 md:grid-cols-2 md:items-end">
                     <div>

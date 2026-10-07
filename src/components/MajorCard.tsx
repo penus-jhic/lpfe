@@ -41,7 +41,7 @@ export default function MajorCard({ major }: { major: Major }) {
                 </span>
             </div>
 
-            <div className="relative z-10 bg-brand-warmred py-6 md:py-8 text-center font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-white transition-colors group-hover:bg-brand-signal">
+            <div className="relative z-10 bg-linear-to-r from-brand-signal to-brand-darkred py-6 md:py-8 text-center font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-white transition-[filter] duration-300 group-hover:brightness-90">
                 {major.code}
             </div>
         </Link>

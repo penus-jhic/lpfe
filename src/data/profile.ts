@@ -27,7 +27,7 @@ export const misiHighlights = [misi[4], misi[5], misi[6]];
 export const highlights = [
     { value: "2018", label: "Tahun berdiri" },
     { value: "A", label: "Akreditasi" },
-    { value: "1.089", label: "Peserta didik" },
+    { value: "1.048", label: "Peserta didik" },
     { value: String(majors.length), label: "Kompetensi keahlian" },
 ];
 

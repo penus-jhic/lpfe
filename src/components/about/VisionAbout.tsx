@@ -1,5 +1,5 @@
 // TODO: ganti dengan foto siswa berlatar transparan (PNG)
-import fotoSiswa from "../../assets/images/about/placeholder-siswa.svg";
+import fotoSiswa from "../../assets/images/about/fotoSiswa.png";
 import { visi, misi } from "../../data/profile";
 import { SketchCircle, SketchCorner } from "../SketchFrame";
 
@@ -11,7 +11,7 @@ export default function VisionAbout() {
                     <SketchCircle>Visi &amp; Misi</SketchCircle> Sekolah
                 </h2>
 
-                <div className="mt-12 md:mt-16 grid gap-14 lg:gap-16 lg:grid-cols-[3fr_2fr] lg:items-center">
+                <div className="mt-12 md:mt-16 grid gap-14 lg:gap-16 lg:grid-cols-[6fr_5fr] lg:items-center">
                     <div className="relative px-4 py-6 md:p-10">
                         {/* Garis siku coretan di kanan atas & kiri bawah, sama seperti bingkai video di beranda */}
                         <SketchCorner className="top-0 right-0 w-16 h-16 md:w-28 md:h-28 rotate-90" />
@@ -34,8 +34,7 @@ export default function VisionAbout() {
                         </ol>
                     </div>
 
-                    {/* Hanya ilustrasi, jadi dianggap dekorasi */}
-                    <img src={fotoSiswa} alt="" className="w-full max-w-sm mx-auto lg:max-w-md" />
+                    <img src={fotoSiswa} alt="" className="w-full max-w-md mx-auto lg:max-w-lg" />
                 </div>
             </div>
         </section>

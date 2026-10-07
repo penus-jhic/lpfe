@@ -1,4 +1,4 @@
-import MajorCard from "../MajorCard";
+import MajorsCarousel from "../MajorsCarousel";
 import SketchFrame from "../SketchFrame";
 import { majors, type Major } from "../../data/majors";
 
@@ -25,13 +25,8 @@ export default function OtherMajors({ current }: { current: Major }) {
                     </p>
                 </div>
 
-                <ul className="mt-12 -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 [scrollbar-width:none] lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:pb-0">
-                    {others.map((major) => (
-                        <li key={major.code} className="shrink-0 w-[55%] sm:w-[36%] lg:w-auto snap-start">
-                            <MajorCard major={major} />
-                        </li>
-                    ))}
-                </ul>
+                {/* Kartu sama persis dengan bagian "Jurusan" di beranda, hanya tanpa jurusan yang sedang dibuka */}
+                <MajorsCarousel majors={others} />
             </div>
         </section>
     )

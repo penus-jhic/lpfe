@@ -1,5 +1,12 @@
 import type { IconName } from "../components/Icon";
-import fotoKelasMM from "../assets/images/majors/mm/DKV1.jpg";
+// kelas bagian hero
+import fotoKelasMM from "../assets/images/majors/mm/heroImage.jpg";
+import fotoKelasRPL from "../assets/images/majors/rpl/heroImage.jpeg";
+import fotoKelasTKJ from "../assets/images/majors/tkj/heroImage.jpg";
+import fotoKelasPKM from "../assets/images/majors/pkm/heroImage.jpg";
+import fotoKelasTOI from "../assets/images/majors/toi/heroImage.jpeg";
+
+// ini bagian landingpage
 import fotoLandingRPL from "../assets/images/majors/rpl/LandingPageRPL.png";
 import fotoLandingTKJ from "../assets/images/majors/tkj/LandingPageTKJ.png";
 import fotoLandingPKM from "../assets/images/majors/pkm/LandingPagePKM.png";
@@ -104,6 +111,7 @@ export type Major = {
     careers: string[];
     image?: string; // foto siswa (PNG tanpa background paling bagus), contoh: import fotoRPL from "../assets/images/rpl.png"
     heroImage?: string; // foto kegiatan untuk latar hero (ditampilkan blur), kalau kosong pakai foto gedung sekolah
+    heroCardImage?: string; // foto kegiatan untuk kartu hero (ditampilkan jelas), kalau kosong pakai foto gedung sekolah
 };
 
 // TODO: ganti deskripsi dengan kurikulum asli & tambahkan foto siswa tiap jurusan
@@ -162,6 +170,7 @@ export const majors: Major[] = [
         careers: ["Desainer Grafis", "Video Editor", "Content Creator", "Fotografer", "Animator", "Motion Designer"],
         image: fotoLandingMM,
         heroImage: fotoKelasMM,
+        heroCardImage: fotoHeroCardImageMM,
     },
     {
         code: "RPL",
@@ -214,6 +223,8 @@ export const majors: Major[] = [
         ],
         careers: ["Web Developer", "Mobile App Developer", "Software Engineer", "UI/UX Designer", "Software Tester"],
         image: fotoLandingRPL,
+        heroImage: fotoKelasRPL,
+        heroCardImage: fotoHeroCardImageRPL
     },
     {
         code: "TKJ",
@@ -265,7 +276,9 @@ export const majors: Major[] = [
             { title: "Perakitan PC Lab Komputer", by: "Kelas X TKJ 1", category: "Perakitan", icon: "cpu", image: fotoShowcaseTKJ6 },
         ],
         careers: ["Network Administrator", "IT Support", "System Administrator", "Teknisi Komputer", "Network Engineer"],
-        image: fotoLandingTKJ
+        image: fotoLandingTKJ,
+        heroImage: fotoKelasTKJ,
+        heroCardImage: fotoHeroCardImageTKJ
     },
     {
         code: "PKM",
@@ -317,7 +330,9 @@ export const majors: Major[] = [
             { title: "Panduan Produk Tabungan", by: "Kelas X PKM 1", category: "Layanan Nasabah", icon: "book", image: fotoShowcasePKM6 },
         ],
         careers: ["Teller", "Customer Service Bank", "Staf Administrasi Keuangan", "Staf Koperasi", "Staf Akuntansi"],
-        image: fotoLandingPKM
+        image: fotoLandingPKM,
+        heroImage: fotoKelasPKM,
+        heroCardImage: fotoHeroCardImagePKM
     },
     {
         code: "TOI",
@@ -369,6 +384,8 @@ export const majors: Major[] = [
             { title: "Pengukur Suhu Ruang", by: "Kelas X TOI 1", category: "IoT", icon: "monitor", image: fotoShowcaseTOI6 },
         ],
         careers: ["Teknisi Otomasi", "Teknisi Listrik Industri", "Operator Mesin Produksi", "Maintenance Engineer"],
-        image: fotoLandingTOI
+        image: fotoLandingTOI,
+        heroImage: fotoKelasTOI,
+        heroCardImage: fotoHeroCardImageTOI
     },
 ];

@@ -60,6 +60,27 @@
   body {
     text-align: justify;
   }
+
+  /* Tailwind v4 mengembalikan kursor tombol ke default, jadi semua elemen yang bisa diklik diberi pointer di sini */
+  a[href],
+  button,
+  [role="button"],
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  label:has(input[type="checkbox"], input[type="radio"], input[type="file"]) {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

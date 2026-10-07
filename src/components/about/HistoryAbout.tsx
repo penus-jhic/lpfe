@@ -1,22 +1,18 @@
 // TODO: sementara pakai foto kepala sekolah, ganti dengan foto yang menggambarkan sejarah sekolah
 import fotoKepsek from "../../assets/images/Kepsek.png";
-import SketchFrame, { SketchCorner, SketchLine } from "../SketchFrame";
+import SketchFrame, { SketchLine } from "../SketchFrame";
 
 export default function HistoryAbout() {
     return(
         <section id="sejarah" className="relative scroll-mt-6 bg-brand-mist text-brand-ink px-6 pt-20 pb-36 md:pt-28 md:pb-44">
-            <div className="max-w-6xl mx-auto grid gap-14 lg:gap-16 lg:grid-cols-[2fr_3fr] lg:items-center">
+            <div className="max-w-6xl mx-auto grid gap-14 lg:gap-16 lg:grid-cols-[2fr_3fr]">
                 <div className="relative w-full max-w-sm mx-auto lg:max-w-none">
                     <img
                         src={fotoKepsek}
                         alt="Kepala Sekolah SMK Plus Pelita Nusantara"
-                        className="w-full aspect-4/5 object-cover rounded-card bg-brand-softmist shadow-2xl"
+                        className="w-full object-cover"
                         loading="lazy"
                     />
-
-                    {/* Garis siku coretan di pojok kanan atas & kiri bawah foto, sama seperti bingkai video di beranda */}
-                    <SketchCorner className="-top-5 -right-5 w-16 h-16 md:-top-8 md:-right-8 md:w-28 md:h-28 rotate-90" />
-                    <SketchCorner delay={350} className="-bottom-5 -left-5 w-16 h-16 md:-bottom-8 md:-left-8 md:w-28 md:h-28 -rotate-90" />
                 </div>
 
                 <div>

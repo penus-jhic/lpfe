@@ -3,8 +3,6 @@ import { SketchBox, SketchCircle, SketchRule } from "../SketchFrame";
 
 // TODO: ganti dengan data asli dari sekolah
 const stats = [
-    { value: "92%", label: "Lulusan terserap kerja" },
-    { value: "120+", label: "Mitra industri" },
     { value: "5", label: "Kompetensi keahlian" },
     { value: "6 bln", label: "Program PKL" },
 ];
@@ -66,7 +64,7 @@ export default function WhyHome() {
                     </p>
                 </div>
 
-                <dl className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-y-6 rounded-card bg-white py-6 shadow-softpill">
+                <dl className="mt-12 grid grid-cols-2 md:grid-cols-2 gap-y-6 rounded-card bg-white py-6 shadow-softpill">
                     {stats.map((stat, index) => (
                         <div key={stat.label} className="relative px-5 text-center">
                             {/* Garis pemisah kolom coretan di tepi kiri (desktop saja), sama seperti garis kolom tabel identitas */}

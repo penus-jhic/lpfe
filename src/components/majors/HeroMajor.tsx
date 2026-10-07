@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Icon from "../Icon";
-import { SketchArrow, SketchLoop, SketchSparks, SketchUnderline } from "../SketchFrame";
+import { SketchArrow, SketchUnderline } from "../SketchFrame";
 import { ppdbLink } from "../../data/navigation";
 import type { Major } from "../../data/majors";
 import fotoGedung from "../../assets/images/about/fotogedung.jpg";
@@ -22,11 +22,11 @@ export default function HeroMajor({ major }: { major: Major }) {
     return(
         // pb lebih besar karena section materi di bawahnya naik menutupi 2.5rem bagian bawah hero
         <section className="relative overflow-hidden bg-brand-ink text-white px-6 pt-36 pb-28 md:pt-40 md:pb-32">
-            {/* Foto latar diblur. scale-110 supaya tepi blur yang memudar tidak terlihat di pinggir section */}
+            {/* Foto latar diblur tipis. scale-105 supaya tepi blur yang memudar tidak terlihat di pinggir section */}
             <img
                 src={major.heroImage ?? fotoGedung}
                 alt=""
-                className="absolute inset-0 size-full object-cover scale-110 blur-md"
+                className="absolute inset-0 size-full object-cover scale-105 blur-xs"
             />
             {/* Lapisan gelap + gradasi merah di kanan atas supaya tulisan tetap terbaca di atas foto */}
             <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/75" />
@@ -54,7 +54,7 @@ export default function HeroMajor({ major }: { major: Major }) {
                     </nav>
 
                     <p className="mt-8 text-xs sm:text-sm md:text-base uppercase tracking-[0.25em] font-semibold text-brand-mist/80">
-                        <SketchSparks tone="text-brand-warmred">Kompetensi Keahlian</SketchSparks>
+                        Kompetensi Keahlian
                     </p>
                     <h1 className="mt-3 font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold uppercase tracking-wide leading-none">
                         <span className="block text-brand-warmred">{major.highlight}</span>
@@ -94,33 +94,20 @@ export default function HeroMajor({ major }: { major: Major }) {
                 </div>
 
                 {/* Kartu jurusan, sama seperti di beranda */}
-                <div className="relative w-full max-w-60 sm:max-w-72 mx-auto md:w-72 lg:w-80 md:max-w-none animate-fade-up [animation-delay:150ms]">
-                    {/* Lingkaran coretan besar yang "mengorbit" di belakang kartu. Ditaruh sebelum kartu supaya
-                        kartunya menutupi bagian tengah lingkaran */}
-                    <SketchLoop delay={600} className="-left-10 -right-10 top-[30%] h-[38%] text-brand-warmred -rotate-12" />
-
-                    <div className="relative overflow-hidden rounded-card bg-linear-to-b from-brand-rose to-brand-ink ring-1 ring-white/10 shadow-2xl shadow-black/40 transition-transform duration-500 md:rotate-2 md:hover:rotate-0">
-                        {/* Foto memenuhi seluruh kartu, bagian bawahnya tertutup label kode jurusan */}
-                        {major.image && (
+                <div className="relative w-full max-w-80 sm:max-w-96 mx-auto md:w-80 lg:w-104 xl:w-md md:max-w-none animate-fade-up [animation-delay:150ms]">
+                    <div className="relative overflow-hidden transition-transform duration-500 md:rotate-2 md:hover:rotate-0">
+                        {/* Tinggi kartu mengikuti rasio foto supaya foto tampil utuh tanpa terpotong */}
+                        {major.heroCardImage ? (
                             <img
-                                src={major.image}
+                                src={major.heroCardImage}
                                 alt={`Siswa jurusan ${name}`}
-                                className="absolute inset-0 w-full h-full object-cover object-top"
+                                className="block w-full h-auto"
                             />
+                        ) : (
+                            <div className="relative aspect-4/5 flex items-center justify-center text-white/30">
+                                <Icon name={major.icon} className="w-24 h-24 md:w-28 md:h-28" />
+                            </div>
                         )}
-
-                        <div className="relative aspect-4/5">
-                            {!major.image && (
-                                <div className="absolute inset-0 flex items-center justify-center text-white/30">
-                                    <Icon name={major.icon} className="w-24 h-24 md:w-28 md:h-28" />
-                                </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-black/60 to-transparent" />
-                        </div>
-
-                        <div className="relative z-10 bg-brand-warmred py-6 md:py-8 text-center font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-white">
-                            {major.code}
-                        </div>
                     </div>
                 </div>
             </div>

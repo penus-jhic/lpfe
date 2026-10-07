@@ -91,7 +91,7 @@ export default function HeroHome() {
                             PELITA NUSANTARA
                         </h1>
                         <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.25em] font-semibold text-brand-mist/80">
-                            <SketchUnderline size="lg" tone="text-brand-signal" delay={700}>Mewujudkan Generasi Vokasi Terampil, Berkarakter, dan Siap Kerja.</SketchUnderline>
+                            <SketchUnderline size="lg" tone="text-brand-signal" delay={700}>Terampil, Entrepreneur, Religius</SketchUnderline>
                         </p>
                     </div>
                 </div>

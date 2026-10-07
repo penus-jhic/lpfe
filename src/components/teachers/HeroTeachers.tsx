@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { SketchArrow, SketchBox, SketchLoop, SketchSparks, SketchUnderline } from "../SketchFrame";
-import { TeacherPhoto } from "../TeacherCard";
-import { allTeachers, leaders, teachers } from "../../data/teachers";
+import { SketchArrow, SketchBox, SketchSparks, SketchUnderline } from "../SketchFrame";
+import { allTeachers } from "../../data/teachers";
 import { majors } from "../../data/majors";
+import fotoGedung from "../../assets/images/fotogedung.jpg";
 
 const chevron = (
     <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -13,11 +13,9 @@ const chevron = (
 // Dihitung dari data, jadi otomatis ikut berubah saat data guru diganti
 const stats = [
     { label: "Tenaga Pendidik", value: allTeachers.length },
-    { label: "Guru Produktif", value: teachers.filter((teacher) => teacher.major).length },
+    { label: "Guru Produktif", value: allTeachers.filter((teacher) => teacher.major).length },
     { label: "Kompetensi Keahlian", value: majors.length },
 ];
-
-const [head] = leaders;
 
 export default function HeroTeachers() {
     const scrollToSection = (id: string) => {
@@ -26,16 +24,22 @@ export default function HeroTeachers() {
     };
 
     return(
-        <section className="relative overflow-hidden bg-brand-ink bg-[radial-gradient(ellipse_at_top_right,var(--color-brand-deepred),transparent_65%)] text-white px-6 pt-36 pb-28 md:pt-40 md:pb-32">
+        <section className="relative overflow-hidden bg-brand-ink text-white px-6 pt-36 pb-28 md:pt-40 md:pb-32">
+            {/* Foto gedung sekolah sebagai latar, diblur tipis seperti hero jurusan.
+                scale-105 supaya tepi blur yang memudar tidak terlihat di pinggir section */}
+            <img
+                src={fotoGedung}
+                alt=""
+                className="absolute inset-0 size-full object-cover scale-105 blur-xs"
+            />
+            {/* Lapisan gelap + gradasi merah di kanan atas supaya tulisan tetap terbaca di atas foto */}
+            <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/75" />
+            <div aria-hidden="true" className="absolute inset-0 bg-radial-[ellipse_at_top_right] from-brand-deepred/70 to-transparent to-65%" />
+
             {/* Dekorasi titik-titik */}
             <div aria-hidden="true" className="pointer-events-none absolute left-6 bottom-20 hidden md:block w-40 h-28 bg-[radial-gradient(circle,rgb(255_255_255/0.1)_2px,transparent_2.5px)] bg-size-[22px_22px]" />
 
-            {/* Tulisan besar di latar, sengaja terpotong */}
-            <p aria-hidden="true" className="pointer-events-none select-none absolute -right-4 -bottom-[0.18em] font-display text-[42vw] md:text-[26vw] font-bold uppercase leading-none text-white/[0.04]">
-                Guru
-            </p>
-
-            <div className="relative max-w-6xl mx-auto grid gap-16 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="relative max-w-6xl mx-auto">
                 <div className="animate-fade-up">
                     <nav aria-label="Breadcrumb">
                         <ol className="flex flex-wrap items-center gap-2 text-sm text-brand-mist/60">
@@ -103,33 +107,6 @@ export default function HeroTeachers() {
                         ))}
                     </dl>
                 </div>
-
-                {/* Tumpukan kartu profil (desktop): kepala sekolah di depan, dua kartu miring di belakangnya */}
-                {head && (
-                    <div className="relative hidden lg:block w-80 animate-fade-up [animation-delay:150ms]">
-                        {/* Lingkaran coretan besar yang "mengorbit" di belakang kartu, sama seperti kartu di hero jurusan.
-                            Ditaruh paling awal supaya tertutup kartu-kartu di atasnya. Lebih lebar dari hero jurusan
-                            karena dua kartu miring di belakang ikut menutupi sisi kiri-kanannya */}
-                        <SketchLoop delay={600} className="-left-20 -right-20 top-[30%] h-[38%] text-brand-warmred -rotate-12" />
-
-                        <div aria-hidden="true" className="absolute inset-0 rounded-card bg-linear-to-b from-brand-rose to-brand-ink ring-1 ring-white/10 shadow-2xl shadow-black/40 -rotate-6 -translate-x-8 translate-y-3" />
-                        <div aria-hidden="true" className="absolute inset-0 rounded-card bg-linear-to-b from-brand-signal to-brand-deepred ring-1 ring-white/10 shadow-2xl shadow-black/40 rotate-6 translate-x-8 translate-y-1" />
-
-                        <Link
-                            to={`/profil-guru/${head.id}`}
-                            className="group relative block overflow-hidden rounded-card ring-1 ring-white/10 shadow-2xl shadow-black/40 rotate-2 transition-transform duration-500 hover:rotate-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-                        >
-                            <TeacherPhoto teacher={head} zoom className="aspect-4/5" initialsSize="text-8xl" />
-                            <div className="flex items-center justify-between gap-4 bg-brand-warmred px-5 py-4 text-left">
-                                <div>
-                                    <p className="text-lg font-semibold leading-snug">{head.name}</p>
-                                    <p className="mt-0.5 text-sm text-white/80">{head.role}</p>
-                                </div>
-                                <SketchArrow className="w-7 h-3.5 shrink-0 transition-transform group-hover:translate-x-1" />
-                            </div>
-                        </Link>
-                    </div>
-                )}
             </div>
         </section>
     )
