@@ -2,8 +2,8 @@ FROM alpine:3.24.2
 
 WORKDIR /app
 
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
 
 RUN apk add caddy && \
     apk add nodejs && \

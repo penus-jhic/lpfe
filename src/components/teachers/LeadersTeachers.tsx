@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import TeacherCard from "../TeacherCard";
-import SketchFrame, { SketchRule } from "../SketchFrame";
+import SketchFrame, { SketchBox, SketchRule } from "../SketchFrame";
 import { leaders } from "../../data/teachers";
 
 const [head, ...deputies] = leaders;
@@ -33,6 +33,15 @@ export default function LeadersTeachers() {
                         sarana prasarana, dan hubungan dengan dunia industri.
                     </p>
                 </div>
+
+                {/* Disclaimer: foto pimpinan diambil acak dari folder guru, nama & isi profil masih data contoh.
+                    Hapus setelah data asli dari sekolah diisi di data/teachers.ts */}
+                <p role="note" className="relative mt-8 bg-brand-darkred/5 px-5 py-4 text-left text-sm leading-relaxed text-brand-ink/70">
+                    <SketchBox tone="text-brand-darkred/50" />
+                    <span className="font-semibold text-brand-darkred">Disclaimer: bukan data sebenarnya.</span>{" "}
+                    Nama, jabatan, foto, dan isi profil guru serta pimpinan di halaman ini hanya data contoh untuk
+                    keperluan demo. Foto pimpinan dipasang secara acak dan bukan foto orang yang bersangkutan.
+                </p>
 
                 {/* Bagan: kepala sekolah di atas, wakil kepala sekolah berjajar di bawahnya.
                     Garis penghubung coretan (desktop) digambar berurutan: turun dari kepala sekolah, mendatar, lalu turun ke tiap kartu */}

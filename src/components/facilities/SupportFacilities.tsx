@@ -65,7 +65,8 @@ function SupportCard({ facility, delay = 0 }: { facility: Facility; delay?: numb
                 <p className="mt-2 text-sm leading-relaxed text-brand-ink/70">{facility.description}</p>
 
                 <div className="relative mt-5 pt-5">
-                    <SketchRule className="text-brand-darkred/30 -left-1 -right-1 -top-1.5 h-3" />
+                    {/* bold: goresan ganda tebal + tipis, senada dengan bingkai SketchBox kartunya */}
+                    <SketchRule bold delay={delay + 1000} className="text-brand-darkred -left-1 -right-1 -top-1.5 h-3" />
                     {/* Panah coretan sebagai penanda poin, sama seperti daftar misi di beranda */}
                     <ul className="space-y-2">
                         {facility.features.map((feature, i) => (

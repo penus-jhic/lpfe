@@ -1,11 +1,21 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../admin/auth/auth-context";
 import AdminIcon from "../../admin/components/AdminIcon";
 import Spinner from "../../admin/components/Spinner";
 import { useDocumentTitle } from "../../admin/lib/format";
+import Icon, { type IconName } from "../../components/Icon";
+import { SketchArrow, SketchBox, SketchRule, SketchSparks, SketchUnderline } from "../../components/SketchFrame";
 import { ApiError } from "../../lib/api";
 import logoSekolah from "../../assets/images/logosmkpenus.png";
+import fotoGedung from "../../assets/images/fotogedung.jpg";
+
+// Isi yang bisa dikelola dari panel admin, tampil sebagai daftar berpanah coretan di panel kiri
+const features = [
+    "Tulis dan terbitkan berita sekolah",
+    "Atur program unggulan di beranda",
+    "Unggah foto ruang praktik & sarana penunjang",
+];
 
 export default function LoginPage() {
     useDocumentTitle("Masuk Administrator");
@@ -48,79 +58,103 @@ export default function LoginPage() {
         }
     };
 
-    return (
-        <main className="bg-gradient-to-br from-[#0B1528] via-[#0F203C] to-[#1E293B] min-h-screen flex items-center justify-center p-4 font-sans text-slate-100 selection:bg-[#8B1D24] selection:text-white relative overflow-hidden">
-            {/* Background glowing ambient spots */}
-            <div className="absolute -top-32 -left-32 w-96 h-96 bg-red-600/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+    return(
+        // text-left menimpa justify dari body untuk seluruh halaman
+        <main className="min-h-svh grid lg:grid-cols-2 bg-white text-brand-ink text-left">
+            {/* Kiri (desktop): panel merek gelap di atas foto gedung sekolah */}
+            <section className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-brand-ink p-12 xl:p-16 text-white">
+                <img src={fotoGedung} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-brand-deepred/90 via-brand-ink/90 to-brand-ink" />
+                {/* Dekorasi titik-titik, sama seperti halaman 404 */}
+                <div aria-hidden="true" className="pointer-events-none absolute right-10 top-12 w-40 h-28 bg-[radial-gradient(circle,rgb(255_255_255/0.12)_2px,transparent_2.5px)] bg-size-[22px_22px]" />
 
-            <div className="w-full max-w-md relative z-10 animate-fade-up">
-                {/* Logo & Brand Header */}
-                <div className="text-center mb-8">
-                    <Link
-                        to="/"
-                        className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-2xl p-3 mb-4 transition-transform duration-300 hover:scale-105"
-                        title="Kembali ke Beranda"
-                    >
-                        <img src={logoSekolah} alt="Logo Penus" className="w-full h-full object-contain drop-shadow-md" />
-                    </Link>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">PANEL ADMINISTRATOR</h1>
-                    <p className="text-xs sm:text-sm text-slate-400 font-medium tracking-wider mt-1 uppercase">
-                        SMK PLUS PELITA NUSANTARA BOGOR
+                <SchoolBrand tone="text-white" taglineTone="text-brand-warmred" />
+
+                <div className="relative max-w-lg">
+                    <p className="text-xs uppercase tracking-[0.25em] font-semibold text-brand-mist/80">
+                        <SketchSparks tone="text-brand-warmred">Panel Administrator</SketchSparks>
                     </p>
+                    <h1 className="mt-5 font-display text-4xl xl:text-5xl font-bold uppercase tracking-wide leading-tight">
+                        {/* Coretan hanya di kata terakhir supaya garisnya tidak melebar saat judul terlipat */}
+                        Kelola Isi Situs{" "}
+                        <span className="text-brand-warmred">
+                            <SketchUnderline tone="text-brand-warmred" delay={400}>Sekolah</SketchUnderline>
+                        </span>
+                    </h1>
+                    {/* mt-8: memberi ruang untuk garis coretan yang menggantung di bawah judul */}
+                    <p className="mt-8 text-base leading-relaxed text-brand-mist/75">
+                        Semua perubahan dari panel ini langsung tampil di landing page SMK Plus Pelita Nusantara.
+                    </p>
+
+                    <ul className="mt-8 space-y-3.5">
+                        {features.map((feature, i) => (
+                            <li key={feature} className="flex items-start gap-3 text-sm font-medium text-white/90">
+                                <span className="shrink-0 mt-1 text-brand-warmred">
+                                    <SketchArrow delay={700 + i * 200} className="w-7 h-3.5" />
+                                </span>
+                                {feature}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                {/* Login Card */}
-                <div className="bg-white/[0.07] backdrop-blur-xl border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden text-left">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8B1D24] via-amber-400 to-[#8B1D24]" />
+                <p className="relative text-xs text-brand-mist/50">
+                    &copy; {new Date().getFullYear()} SMK Plus Pelita Nusantara
+                </p>
+            </section>
 
-                    <div className="mb-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-xs font-semibold mb-3">
-                            <AdminIcon name="shieldCheck" className="w-3.5 h-3.5" />
-                            <span>Akses Khusus Pengelola</span>
-                        </div>
-                        <h2 className="text-xl font-bold text-white">Masuk ke Sistem</h2>
-                        <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                            Masuk untuk mengelola berita sekolah, program kejuruan, dan fasilitas portal landing page.
-                        </p>
+            {/* Kanan: formulir masuk */}
+            <section className="relative flex items-center justify-center overflow-hidden bg-brand-softmist/50 px-6 py-16">
+                <div aria-hidden="true" className="pointer-events-none absolute left-0 bottom-10 w-24 h-56 bg-[radial-gradient(circle,var(--color-brand-mist)_1.5px,transparent_2px)] bg-size-[14px_14px] mask-[linear-gradient(to_top,black,transparent)]" />
+
+                <div className="relative w-full max-w-md animate-fade-up">
+                    {/* HP & tablet: panel kiri disembunyikan, jadi identitas sekolah tampil di atas formulir */}
+                    <div className="mb-10 flex justify-center lg:hidden">
+                        <SchoolBrand tone="text-brand-ink" taglineTone="text-brand-darkred" />
                     </div>
 
-                    {message && (
-                        <div role="alert" className="mb-5 p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs sm:text-sm flex items-start gap-2.5">
-                            <AdminIcon name="alert" className="mt-0.5 w-4 h-4 shrink-0 text-red-400" />
-                            <span>{message}</span>
-                        </div>
-                    )}
+                    {/* Bingkai coretan penuh menggantikan border & rounded-card, sama seperti kartu di beranda */}
+                    <div className="relative bg-white px-6 py-9 sm:px-10 sm:py-11">
+                        <SketchBox delay={200} />
 
-                    <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                        <div>
-                            <label htmlFor="username" className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5">
-                                Username / ID Pengguna
-                            </label>
-                            <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                autoComplete="username"
-                                required
-                                autoFocus
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                aria-invalid={errors.username ? true : undefined}
-                                placeholder="Contoh: admin, kepsek, tu_budi"
-                                className="block w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-400 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
-                            />
-                            {errors.username?.[0] && (
-                                <p className="mt-1.5 text-xs sm:text-sm text-red-400">{errors.username[0]}</p>
-                            )}
-                        </div>
+                        <p className="text-xs uppercase tracking-[0.25em] font-semibold text-brand-darkred">
+                            Akses Khusus Pengelola
+                        </p>
+                        <h2 className="mt-3 font-display text-3xl font-bold uppercase tracking-wide leading-tight">
+                            Masuk ke Panel
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-brand-ink/60">
+                            Gunakan akun pengelola sekolah (Admin, Kepala Sekolah, atau TU).
+                        </p>
 
-                        <div>
-                            <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5">
-                                Kata Sandi
-                            </label>
-                            <div className="relative">
+                        {message && (
+                            // Garis tegak coretan di kiri pesan, pengganti kotak berborder
+                            <div role="alert" className="relative mt-6 flex items-start gap-2.5 bg-brand-signal/5 py-3 pl-7 pr-4 text-sm leading-relaxed text-brand-deepred">
+                                <SketchRule bold vertical className="text-brand-signal -top-1 -bottom-1 left-0 w-3" />
+                                <AdminIcon name="alert" className="mt-0.5 w-4 h-4 shrink-0 text-brand-signal" />
+                                <span>{message}</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-7">
+                            <SketchField id="username" label="Username" icon="user" error={errors.username?.[0]}>
+                                <input
+                                    id="username"
+                                    name="username"
+                                    type="text"
+                                    autoComplete="username"
+                                    required
+                                    autoFocus
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    aria-invalid={errors.username ? true : undefined}
+                                    aria-describedby={errors.username ? "username-error" : undefined}
+                                    placeholder="Contoh: admin"
+                                    className={inputClass}
+                                />
+                            </SketchField>
+
+                            <SketchField id="password" label="Kata Sandi" icon="shield" error={errors.password?.[0]}>
                                 <input
                                     id="password"
                                     name="password"
@@ -130,45 +164,93 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     aria-invalid={errors.password ? true : undefined}
+                                    aria-describedby={errors.password ? "password-error" : undefined}
                                     placeholder="••••••••"
-                                    className="block w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 pr-11 text-xs sm:text-sm text-white placeholder:text-slate-400 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
+                                    className={`${inputClass} pr-10`}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                                     aria-pressed={showPassword}
-                                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                    className="absolute right-0 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center text-brand-ink/40 transition-colors hover:text-brand-darkred"
                                 >
                                     <AdminIcon name={showPassword ? "eyeOff" : "eye"} className="w-4 h-4" />
                                 </button>
-                            </div>
-                            {errors.password?.[0] && (
-                                <p className="mt-1.5 text-xs sm:text-sm text-red-400">{errors.password[0]}</p>
-                            )}
-                        </div>
+                            </SketchField>
 
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="mt-6 w-full py-3 rounded-xl bg-[#8B1D24] hover:bg-[#72151B] text-white font-semibold text-xs sm:text-sm shadow-lg shadow-red-950/40 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                            {/* Tombol utama sama seperti tombol "Kembali ke Beranda" di halaman 404 */}
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="group mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-linear-to-r from-brand-signal to-brand-darkred px-7 py-3.5 text-sm font-semibold text-white shadow-xl shadow-brand-darkred/25 transition-transform hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
+                            >
+                                {submitting ? <Spinner className="w-4 h-4" label="Sedang masuk" /> : null}
+                                {submitting ? "Sedang Masuk..." : "Masuk ke Panel Admin"}
+                                {!submitting && <SketchArrow className="w-8 h-4 transition-transform group-hover:translate-x-1" />}
+                            </button>
+                        </form>
+                    </div>
+
+                    <p className="mt-8 text-center">
+                        <Link
+                            to="/"
+                            className="group inline-flex items-center gap-2.5 text-sm font-semibold text-brand-darkred"
                         >
-                            {submitting && <Spinner className="w-4 h-4" label="Sedang masuk" />}
-                            <span>Masuk ke Panel Admin</span>
-                        </button>
-                    </form>
+                            <SketchArrow className="w-7 h-3.5 -scale-x-100 transition-transform group-hover:-translate-x-1" />
+                            Kembali ke Beranda Situs
+                        </Link>
+                    </p>
                 </div>
-
-                <p className="mt-6 text-center">
-                    <Link
-                        to="/"
-                        className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-400 transition-colors hover:text-white"
-                    >
-                        <AdminIcon name="chevronLeft" className="w-4 h-4" />
-                        Kembali ke Beranda Situs
-                    </Link>
-                </p>
-            </div>
+            </section>
         </main>
+    );
+}
+
+// Kolom isian bergaris coretan seperti menulis di buku (sama seperti kolom cari di Direktori Guru),
+// garisnya makin tegas saat sedang diketik dan berubah merah saat isiannya salah
+const inputClass = "w-full bg-transparent py-2.5 pl-7 text-sm placeholder:text-brand-ink/35 focus:outline-none";
+
+function SketchField({ id, label, icon, error, children }: {
+    id: string;
+    label: string;
+    icon: IconName;
+    error?: string;
+    children: ReactNode;
+}) {
+    return(
+        <div>
+            <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wider text-brand-ink/70">
+                {label}
+            </label>
+            <div className="group relative mt-1.5">
+                <Icon name={icon} className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-darkred" />
+                {children}
+                <SketchRule
+                    bold
+                    className={`-left-1 -right-1 -bottom-1.5 h-3 transition-colors ${
+                        error ? "text-brand-signal" : "text-brand-darkred/35 group-focus-within:text-brand-darkred"
+                    }`}
+                />
+            </div>
+            {error && <p id={`${id}-error`} className="mt-3 text-sm text-brand-signal">{error}</p>}
+        </div>
+    );
+}
+
+// Logo & nama sekolah, sama seperti di footer. Mengarah ke beranda
+function SchoolBrand({ tone, taglineTone }: { tone: string; taglineTone: string }) {
+    return(
+        <Link to="/" className="group relative flex w-fit items-center gap-3">
+            <img src={logoSekolah} alt="" className="h-12 w-12 shrink-0 object-contain transition-transform group-hover:scale-105" />
+            <span className="flex flex-col">
+                <span className={`font-display text-base font-bold uppercase tracking-wide leading-tight ${tone}`}>
+                    SMK Plus Pelita Nusantara
+                </span>
+                <span className={`mt-0.5 text-[10px] uppercase font-semibold tracking-wider ${taglineTone}`}>
+                    We Are Different
+                </span>
+            </span>
+        </Link>
     );
 }

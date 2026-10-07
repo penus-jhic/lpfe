@@ -6,7 +6,7 @@ import { newsCategories } from "../data/news";
 import logoSekolah from "../assets/images/logosmkpenus.png";
 import logoPartner from "../assets/images/logofooter.webp";
 import fotoTalentaVokasi from "../assets/images/TalentaVokasi.png";
-import { SketchArrow, SketchSparks } from "./SketchFrame";
+import { SketchArrow, SketchBox, SketchSparks } from "./SketchFrame";
 
 const brochureUrl = "https://images.lekar.co.id/file/pelita/infografis_pelita_nusantara.pdf";
 const mapsQuery = "SMK+Plus+Pelita+Nusantara+Cibinong+Bogor";
@@ -32,7 +32,6 @@ const mainLinks: MenuLink[] = [
     { label: "Daftar Pengumuman Seleksi", href: `${ppdbLink.href}/pengumuman`, external: true },
     { label: "Cek Status Pendaftar (NISN)", href: `${ppdbLink.href}/cek-status`, external: true },
     { label: "Profil Sekolah Resmi", href: "https://smkpluspnb.sch.id" },
-    { label: "Login Admin", href: "/login" },
 ];
 
 // TODO: isi dengan URL aplikasi siswa
@@ -177,12 +176,8 @@ export default function Footer() {
                             loading="lazy"
                         />
 
-                        <p className="pt-2 text-[11px] sm:text-xs font-medium text-brand-ink/60 flex items-center gap-2 flex-wrap">
-                            <span>Copyright &copy; {new Date().getFullYear()} All right reserved | PENUS</span>
-                            <span>&bull;</span>
-                            <Link to="/login" className="transition-colors hover:text-brand-darkred hover:underline">
-                                Login Admin
-                            </Link>
+                        <p className="pt-2 text-[11px] sm:text-xs font-medium text-brand-ink/60">
+                            Copyright &copy; {new Date().getFullYear()} All right reserved | PENUS
                         </p>
                     </div>
 
@@ -234,6 +229,24 @@ export default function Footer() {
                             Lokasi strategis dekat pusat pemerintahan Cibinong, Kabupaten Bogor.
                         </p>
                     </div>
+                </div>
+
+                {/* KHUSUS TESTING: jalan pintas ke panel admin supaya juri lomba bisa mencoba unggah berita, program,
+                    & fasilitas. Hapus blok ini sebelum situs dipakai di production */}
+                <div className="relative max-w-6xl mx-auto mt-12 flex flex-col gap-4 bg-brand-darkred/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <SketchBox tone="text-brand-darkred/50" />
+                    <p role="note" className="text-xs sm:text-[13px] leading-relaxed text-brand-ink/70">
+                        <span className="font-semibold text-brand-darkred">Khusus testing, bukan untuk production.</span>{" "}
+                        Navigasi ke panel admin ini disediakan sementara agar juri dapat mencoba fitur pengelolaan
+                        konten (unggah berita, program, dan fasilitas). Tautan ini akan dihapus saat situs dirilis resmi.
+                    </p>
+                    <Link
+                        to="/admin"
+                        className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand-darkred px-5 py-2.5 text-xs sm:text-sm font-semibold text-white transition-colors hover:bg-brand-deepred"
+                    >
+                        Buka Panel Admin
+                        <SketchArrow className="w-6 h-3 transition-transform group-hover:translate-x-1" />
+                    </Link>
                 </div>
             </div>
         </footer>

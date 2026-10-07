@@ -5,7 +5,7 @@ import { A11y, Keyboard } from "swiper/modules";
 import "swiper/css";
 import LoadError from "../LoadError";
 import Skeleton from "../Skeleton";
-import { SketchArrow } from "../SketchFrame";
+import { SketchArrow, SketchBox, SketchUnderline } from "../SketchFrame";
 import type { Facility } from "../../data/facilities";
 import { useFacilities } from "../../lib/content";
 
@@ -20,20 +20,23 @@ export default function FacilitiesHome() {
         <section className="relative z-10 overflow-hidden bg-white text-brand-ink px-6 py-20 md:py-28">
             <div className="relative max-w-6xl mx-auto">
                 <h2 className="text-center text-balance font-display text-3xl md:text-4xl font-bold uppercase tracking-wide leading-tight">
-                    <span className="mx-auto mb-4 block h-1.5 w-20 bg-brand-warmred" aria-hidden="true" />
-                    Fasilitas Penunjang{" "}
-                    <span className="text-brand-darkred">Belajar &amp; Berkarya SMK Plus Pelita Nusantara</span>
+                    {/* Coretan bawah di baris terakhir seperti judul section Berita, menggantikan garis merah polos
+                        di atas judul. Di baris terakhir supaya coretannya tidak menabrak baris di bawahnya */}
+                    Fasilitas Penunjang <span className="text-brand-darkred">Belajar &amp; Berkarya</span>
+                    <span className="block text-brand-darkred">
+                        <SketchUnderline>SMK Plus Pelita Nusantara</SketchUnderline>
+                    </span>
                 </h2>
 
                 {error ? (
                     <LoadError message={error.message} onRetry={reload} className="mt-8" />
                 ) : !facilities ? (
                     // Kerangka selama data dimuat, jumlah kolomnya sama dengan slider
-                    <div role="status" aria-label="Memuat fasilitas" className="mt-12 md:mt-16 grid gap-4 sm:gap-5 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div role="status" aria-label="Memuat fasilitas" className="mt-12 md:mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {[0, 1, 2].map((i) => (
-                            <div key={i} className={`rounded-card border border-dashed border-brand-ink/20 overflow-hidden ${i === 1 ? "hidden sm:block" : i === 2 ? "hidden lg:block" : ""}`}>
+                            <div key={i} className={`p-3 ${i === 1 ? "hidden sm:block" : i === 2 ? "hidden lg:block" : ""}`}>
                                 <Skeleton className="aspect-4/3" />
-                                <div className="p-5 md:p-6 space-y-3">
+                                <div className="px-2 pt-5 pb-3 md:px-3 space-y-3">
                                     <Skeleton className="h-5 w-2/3 rounded-full" />
                                     <Skeleton className="h-4 w-full rounded-full" />
                                 </div>
@@ -47,14 +50,16 @@ export default function FacilitiesHome() {
                             loop
                             keyboard={{ enabled: true, onlyInViewport: true }}
                             slidesPerView={1.15}
-                            spaceBetween={16}
+                            // spaceBetween 24 = gap-6: ujung bingkai coretan kebablasan ±8px, jadi kartu bersebelahan tidak saling tabrak
+                            spaceBetween={24}
                             breakpoints={{
-                                640: { slidesPerView: 2, spaceBetween: 20 },
-                                1024: { slidesPerView: 3, spaceBetween: 24 },
+                                640: { slidesPerView: 2 },
+                                1024: { slidesPerView: 3 },
                             }}
                             onSwiper={setSwiper}
                             onRealIndexChange={(s) => setActive(s.realIndex)}
-                            className="mt-12 md:mt-16"
+                            // "!" menimpa padding bawaan swiper.css, supaya ujung bingkai coretan yang kebablasan tidak terpotong
+                            className="mt-9 md:mt-13 px-2! py-3!"
                         >
                             {photoFacilities.map((facility) => (
                                 // "h-auto!" menimpa height 100% bawaan Swiper supaya semua kartu sama tinggi
@@ -103,8 +108,10 @@ export default function FacilitiesHome() {
 
 function FacilityCard({ facility }: { facility: Facility }) {
     return(
+        // Bingkai coretan penuh menggantikan border putus-putus, sama seperti kartu Sarana Penunjang di halaman Fasilitas.
         // text-left: kartu sempit, teks yang terbungkus jadi renggang kalau ikut justify dari body
-        <article className="group h-full flex flex-col overflow-hidden rounded-card border border-dashed border-brand-ink/20 bg-white text-left">
+        <article className="group relative h-full flex flex-col bg-white p-3 text-left">
+            <SketchBox />
             {/* Foto sampul dibuat besar (4:3, selebar kartu) supaya fasilitas terlihat jelas */}
             <div className="relative aspect-4/3 overflow-hidden bg-linear-to-br from-brand-signal to-brand-deepred">
                 <img
@@ -115,7 +122,7 @@ function FacilityCard({ facility }: { facility: Facility }) {
                 />
             </div>
 
-            <div className="flex-1 p-5 md:p-6">
+            <div className="flex-1 px-2 pt-5 pb-3 md:px-3">
                 <h3 className="text-lg font-semibold">{facility.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-brand-ink/70">{facility.description}</p>
             </div>

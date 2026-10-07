@@ -85,9 +85,10 @@ export default function ProfileTeacher({ teacher }: { teacher: Teacher }) {
 
                         {/* Keterangan untuk profil yang isinya masih contoh (lihat contoh() di data/teachers.ts) */}
                         {teacher.dummy && (
-                            <p role="note" className={`${teacher.quote ? "mt-6" : "mt-12"} rounded-xl border border-dashed border-brand-darkred/40 bg-brand-darkred/5 px-4 py-3 text-left text-sm leading-relaxed text-brand-ink/70`}>
-                                <span className="font-semibold text-brand-darkred">Data contoh.</span>{" "}
-                                Pesan dan isi profil ini masih data sementara (dummy) dan akan diperbarui dengan
+                            <p role="note" className={`relative ${teacher.quote ? "mt-6" : "mt-12"} bg-brand-darkred/5 px-5 py-4 text-left text-sm leading-relaxed text-brand-ink/70`}>
+                                <SketchBox tone="text-brand-darkred/50" />
+                                <span className="font-semibold text-brand-darkred">Data contoh, bukan data sebenarnya.</span>{" "}
+                                Pesan, foto, dan isi profil ini masih data sementara (dummy) dan akan diperbarui dengan
                                 data asli dari sekolah.
                             </p>
                         )}

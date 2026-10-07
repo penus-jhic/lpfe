@@ -1,6 +1,21 @@
 :80 {
-    root * /app/dist
     encode gzip zstd
-    try_files {path} /index.html
-    file_server
+
+    # Teruskan API & foto unggahan ke container lain di network web-penus-network, supaya frontend cukup
+    # memanggil /api relatif (sama seperti proxy Vite saat dev). Ganti lewat env BACKEND_UPSTREAM / USER_UPSTREAM.
+    handle /api/user/* {
+        reverse_proxy {$USER_UPSTREAM:user:80}
+    }
+    handle /api/* {
+        reverse_proxy {$BACKEND_UPSTREAM:lpbe:80}
+    }
+    handle /storage/* {
+        reverse_proxy {$BACKEND_UPSTREAM:lpbe:80}
+    }
+
+    handle {
+        root * /app/dist
+        try_files {path} /index.html
+        file_server
+    }
 }

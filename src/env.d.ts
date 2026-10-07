@@ -1,5 +1,5 @@
 interface ImportMetaEnv {
-    // Alamat API Laravel, contoh "http://localhost:8000/api"
+    // Alamat API yang dipanggil browser, biarkan "/api" supaya lewat proxy (lihat .env.example)
     readonly VITE_API_URL?: string;
 }
 

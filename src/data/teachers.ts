@@ -1,9 +1,14 @@
-import fotoKepsek from "../assets/images/Kepsek.png";
+// Foto khusus halaman profil guru. Beranda & halaman Tentang tetap memakai Kepsek.png
+import fotoKepsek from "../assets/images/KepsekProfilGuru.jpg";
 import fotoKaprogMM from "../assets/images/majors/mm/kaprog.jpg";
 import fotoKaprogRPL from "../assets/images/majors/rpl/kaprog.jpg";
 import fotoKaprogTKJ from "../assets/images/majors/tkj/kaprog.jpg";
 import fotoKaprogPKM from "../assets/images/majors/pkm/kaprog.jpg";
 import fotoKaprogTOI from "../assets/images/majors/toi/kaprog.jpg";
+
+// Foto guru di assets/images/guru, dipanggil dengan nama filenya. Kalau nama file salah, kartu menampilkan inisial
+const photos = import.meta.glob<string>("../assets/images/guru/*", { eager: true, import: "default" });
+const photo = (file: string) => photos[`../assets/images/guru/${file}`];
 
 export type Education = {
     level: string;  // jenjang, contoh: "S1", "S2", "D3"
@@ -30,7 +35,7 @@ export type Teacher = {
     dummy?: boolean; // isi profil masih contoh, halaman profil menampilkan keterangan "data contoh". Hapus setelah diisi data asli
 };
 
-// TODO: ganti dengan nama, jabatan, foto, & isi profil asli guru
+// TODO: ganti dengan nama, jabatan, foto, & isi profil asli guru. Foto wakasek sementara diambil acak dari folder guru
 // Pimpinan pertama (kepala sekolah) tampil paling atas di bagan, sisanya (maks. 4) berjajar di bawahnya
 export const leaders: Teacher[] = [
     {
@@ -57,6 +62,7 @@ export const leaders: Teacher[] = [
         name: "Hj. Euis Kurniasih, M.Pd.",
         role: "Wakasek Bidang Kurikulum",
         dummy: true,
+        image: photo("Mieke Rahmawaty1361.jpg"), // foto acak dari folder guru, bukan foto asli
         since: 2018,
         quote: "Belajar itu bukan soal cepat, tapi soal tidak berhenti.",
         bio: [
@@ -74,6 +80,7 @@ export const leaders: Teacher[] = [
         name: "Dadang Kurnia, S.Pd.",
         role: "Wakasek Bidang Kesiswaan",
         dummy: true,
+        image: photo("R. Dodi Setiadi1425.jpg"), // foto acak dari folder guru, bukan foto asli
         since: 2018,
         quote: "Disiplin kecil setiap hari lebih kuat dari semangat besar sesekali.",
         bio: [
@@ -90,6 +97,7 @@ export const leaders: Teacher[] = [
         name: "Ir. Bambang Hermawan",
         role: "Wakasek Bidang Sarana Prasarana",
         dummy: true,
+        image: photo("Muzakir Zulkarnaen1401.jpg"), // foto acak dari folder guru, bukan foto asli
         since: 2019,
         quote: "Alat yang dirawat dengan baik akan mengajari banyak angkatan.",
         bio: [
@@ -106,6 +114,7 @@ export const leaders: Teacher[] = [
         name: "Wulan Sari, S.E., M.M.",
         role: "Wakasek Bidang Hubungan Industri",
         dummy: true,
+        image: photo("Dewi ratnawati1301.jpg"), // foto acak dari folder guru, bukan foto asli
         since: 2018,
         quote: "Mitra industri percaya pada sekolah karena alumninya bekerja dengan baik.",
         bio: [
@@ -205,10 +214,6 @@ export const kaprogs: Teacher[] = [
         certifications: ["Siemens Mechatronic Systems Certification", "Asesor Kompetensi BNSP"],
     },
 ];
-
-// Foto guru di assets/images/guru, dipanggil dengan nama filenya. Kalau nama file salah, kartu menampilkan inisial
-const photos = import.meta.glob<string>("../assets/images/guru/*", { eager: true, import: "default" });
-const photo = (file: string) => photos[`../assets/images/guru/${file}`];
 
 // Isi profil CONTOH per mata pelajaran, supaya halaman profil guru tidak kosong selama data asli belum ada.
 // Guru yang memakai contoh() otomatis ditandai dummy (halaman profilnya menampilkan keterangan "data contoh").

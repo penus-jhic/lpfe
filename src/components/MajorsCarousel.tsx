@@ -13,12 +13,11 @@ const MIN_LOOP_SLIDES = 5;
 export default function MajorsCarousel({ majors }: { majors: Major[] }) {
     const [swiper, setSwiper] = useState<SwiperClass | null>(null);
     const [active, setActive] = useState(0);
-    const activeMajor = majors[active];
     // Geser otomatis dimatikan untuk pengguna yang memilih "kurangi animasi" di perangkatnya
     const [reduceMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
     // Kalau kartunya kurang (mis. 4 di "Jurusan Lainnya"), daftar diulang supaya loop tetap mulus.
-    // Indeks slide lalu dibagi sisa jumlah jurusan untuk titik penanda & nama jurusan aktif
+    // Indeks slide lalu dibagi sisa jumlah jurusan untuk titik penanda jurusan aktif
     const slides = majors.length < MIN_LOOP_SLIDES ? [...majors, ...majors] : majors;
 
     return(
@@ -50,13 +49,7 @@ export default function MajorsCarousel({ majors }: { majors: Major[] }) {
                     ))}
                 </Swiper>
 
-                {/* Kartu hanya menampilkan kode, jadi nama lengkap jurusan aktif ditulis di bawahnya.
-                    aria-hidden: nama lengkap sudah dibacakan dari link kartu, Swiper juga punya live region sendiri */}
-                <p aria-hidden="true" className="text-center text-lg font-semibold">
-                    {activeMajor && `${activeMajor.highlight} ${activeMajor.rest}`.trim()}
-                </p>
-
-                <div className="mt-3 flex items-center justify-center gap-4 sm:gap-6">
+                <div className="mt-1 flex items-center justify-center gap-4 sm:gap-6">
                     <SlideArrow direction="left" label="Jurusan sebelumnya" onClick={() => swiper?.slidePrev()} />
 
                     <div className="flex gap-3">

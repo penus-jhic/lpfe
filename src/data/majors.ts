@@ -6,6 +6,13 @@ import fotoKelasTKJ from "../assets/images/majors/tkj/heroImage.jpg";
 import fotoKelasPKM from "../assets/images/majors/pkm/heroImage.jpg";
 import fotoKelasTOI from "../assets/images/majors/toi/heroImage.jpeg";
 
+// logo jurusan di pojok kiri atas kartu jurusan
+import logoMM from "../assets/images/logojurusan/logo-mm.png";
+import logoRPL from "../assets/images/logojurusan/logo-rpl.png";
+import logoTKJ from "../assets/images/logojurusan/logo-tkj.png";
+import logoPKM from "../assets/images/logojurusan/logo-pkm.png";
+import logoTOI from "../assets/images/logojurusan/logo-toi.png";
+
 // ini bagian landingpage
 import fotoLandingRPL from "../assets/images/majors/rpl/LandingPageRPL.png";
 import fotoLandingTKJ from "../assets/images/majors/tkj/LandingPageTKJ.png";
@@ -116,7 +123,8 @@ export type Major = {
     devacto: Devacto; // kegiatan Devacto (pendalaman keahlian setelah jam sekolah) di jurusan ini
     showcase: ShowcaseItem[];
     careers: string[];
-    image?: string; // foto siswa (PNG tanpa background paling bagus), contoh: import fotoRPL from "../assets/images/rpl.png"
+    image?: string; // foto kartu jurusan (potret 3:5), contoh: import fotoRPL from "../assets/images/rpl.png"
+    logo?: string; // logo jurusan di pojok kiri atas kartu, kalau kosong pakai logo sekolah
     heroImage?: string; // foto kegiatan untuk latar hero (ditampilkan blur), kalau kosong pakai foto gedung sekolah
     heroCardImage?: string; // foto kegiatan untuk kartu hero (ditampilkan jelas), kalau kosong pakai foto gedung sekolah
 };
@@ -127,6 +135,7 @@ export type Major = {
 export const majors: Major[] = [
     {
         code: "MM",
+        logo: logoMM,
         slug: "multimedia",
         icon: "camera",
         highlight: "Multimedia",
@@ -181,6 +190,7 @@ export const majors: Major[] = [
     },
     {
         code: "RPL",
+        logo: logoRPL,
         slug: "rekayasa-perangkat-lunak",
         icon: "code",
         highlight: "Rekayasa",
@@ -235,6 +245,7 @@ export const majors: Major[] = [
     },
     {
         code: "TKJ",
+        logo: logoTKJ,
         slug: "teknik-komputer-jaringan",
         icon: "network",
         highlight: "Teknik Komputer",
@@ -289,6 +300,7 @@ export const majors: Major[] = [
     },
     {
         code: "PKM",
+        logo: logoPKM,
         slug: "perbankan-keuangan-mikro",
         icon: "bank",
         highlight: "Perbankan",
@@ -343,6 +355,7 @@ export const majors: Major[] = [
     },
     {
         code: "TOI",
+        logo: logoTOI,
         slug: "teknik-otomasi-industri",
         icon: "cpu",
         highlight: "Teknik Otomasi",
