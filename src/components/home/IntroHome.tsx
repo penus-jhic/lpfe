@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import videoPenus from "../../assets/videos/header-content-small.mp4";
 import { visi, misiHighlights } from "../../data/profile";
 import Icon from "../Icon";
 import SketchFrame, { SketchArrow, SketchCorner } from "../SketchFrame";
@@ -31,7 +30,7 @@ export default function IntroHome() {
                         <video
                             ref={videoRef}
                             className="w-full aspect-video object-contain rounded-card bg-brand-softmist shadow-2xl"
-                            src={videoPenus}
+                            src="https://cld.c8nayrntn2.qzz.io/header-content-small.mp4"
                             autoPlay
                             muted
                             loop
@@ -83,7 +82,7 @@ export default function IntroHome() {
                         <Link
                             to="/tentang"
                             className="group inline-flex items-center gap-3 rounded-full bg-linear-to-r  px-7 py-3.5 text-sm font-semibold text-brand-darkred transition-transform hover:-translate-y-0.5"
-                        > 
+                        >
                             <SketchFrame>
                                 {/* SketchArrow berupa block, jadi teks & panah dijejerkan dengan inline-flex supaya tidak turun baris */}
                                 <span className="inline-flex items-center gap-3">

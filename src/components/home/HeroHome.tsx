@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import heroVideo from "../../assets/videos/header-content-small.mp4";
 import { SketchArrow, SketchUnderline } from "../SketchFrame";
 import { smoothScrollTo, stopSmoothScroll, useScrollFrame } from "../../lib/smoothScroll";
 
@@ -95,7 +94,7 @@ export default function HeroHome() {
                 <video
                     ref={videoRef}
                     className="absolute inset-0 w-full h-full object-cover will-change-transform"
-                    src={heroVideo}
+                    src="https://cld.c8nayrntn2.qzz.io/header-content-small.mp4"
                     autoPlay
                     muted
                     loop
