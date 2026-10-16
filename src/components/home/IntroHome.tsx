@@ -44,7 +44,7 @@ export default function IntroHome() {
                         <button
                             type="button"
                             onClick={togglePlay}
-                            aria-label={playing ? "Jeda video" : "Putar video"}
+                            aria-llabel={playing ? "Jeda video" : "Putar video"}
                             className="absolute bottom-3 right-3 md:bottom-4 md:right-4 w-11 h-11 rounded-full bg-brand-ink/60 text-white ring-1 ring-white/20 backdrop-blur flex items-center justify-center transition-colors hover:bg-brand-darkred focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-darkred"
                         >
                             <Icon name={playing ? "pause" : "play"} className="w-5 h-5 fill-current" />

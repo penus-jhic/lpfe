@@ -146,19 +146,19 @@ export default function AccountPage() {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2 text-xs sm:text-sm">
-                        <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200/80">
-                            <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <div className="rounded-xl bg-brand-paper p-3.5 border border-brand-ink/10">
+                            <span className="block text-xs font-semibold uppercase tracking-wider text-brand-ink/60">
                                 Username
                             </span>
-                            <span className="mt-1 block tabular-nums font-medium text-slate-900">
+                            <span className="mt-1 block tabular-nums font-medium text-brand-ink">
                                 {user?.username ?? "-"}
                             </span>
                         </div>
-                        <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200/80">
-                            <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <div className="rounded-xl bg-brand-paper p-3.5 border border-brand-ink/10">
+                            <span className="block text-xs font-semibold uppercase tracking-wider text-brand-ink/60">
                                 Nomor Induk (NIP / NIK)
                             </span>
-                            <span className="mt-1 block tabular-nums font-medium text-slate-900">
+                            <span className="mt-1 block tabular-nums font-medium text-brand-ink">
                                 {user?.nomor_induk ?? "-"}
                             </span>
                         </div>

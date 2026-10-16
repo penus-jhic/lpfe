@@ -1,5 +1,5 @@
 // TODO: ganti dengan foto siswa berlatar transparan (PNG)
-import fotoSiswa from "../../assets/images/about/fotoSiswa.png";
+import fotoSiswa from "../../assets/images/about/fotoSiswa.webp";
 import { visi, misi } from "../../data/profile";
 import { SketchCircle, SketchCorner } from "../SketchFrame";
 
@@ -34,7 +34,7 @@ export default function VisionAbout() {
                         </ol>
                     </div>
 
-                    <img src={fotoSiswa} alt="" className="w-full max-w-md mx-auto lg:max-w-lg" />
+                    <img src={fotoSiswa} alt="" className="w-full max-w-md mx-auto lg:max-w-lg" loading="lazy" />
                 </div>
             </div>
         </section>

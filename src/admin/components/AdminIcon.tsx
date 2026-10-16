@@ -81,6 +81,9 @@ const paths = {
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
         </>
     ),
+    arrowUpRight: <path d="M7 17 17 7M8 7h9v9" />,
+    pen: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />,
+    calendar: <path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" />,
 };
 
 export type AdminIconName = keyof typeof paths;

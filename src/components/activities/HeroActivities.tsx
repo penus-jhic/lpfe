@@ -18,7 +18,7 @@ export default function HeroActivities() {
 
     return(
         <section className="relative overflow-hidden bg-brand-ink text-white px-6 pt-36 pb-28 md:pt-40 md:pb-32">
-            <img src={fotoProgram} alt="" className="absolute inset-0 size-full object-cover" />
+            <img src={fotoProgram} alt="" className="absolute inset-0 size-full object-cover" fetchPriority="high" />
             <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/80 lg:bg-transparent lg:bg-linear-to-r lg:from-brand-ink/95 lg:via-brand-ink/80 lg:to-brand-ink/50" />
             <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--color-brand-deepred),transparent_65%)] opacity-70" />
 

@@ -1,19 +1,20 @@
-// Kelas Tailwind yang dipakai berulang di panel admin, mengikuti design system PPDB Penus
+// Kelas Tailwind yang dipakai berulang di panel admin. Bentuk & warnanya sama dengan panel admin BKK & PPDB
+// (tombol pil, kartu rounded-card, token warna brand-* dari .dash-theme)
 
 export const inputClass =
-    "block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-[#8B1D24] focus:outline-none focus:ring-2 focus:ring-[#8B1D24]/10 disabled:bg-slate-50";
+    "block w-full rounded-xl border border-brand-ink/15 bg-white px-4 py-2.5 text-sm text-brand-ink placeholder:text-brand-muted transition focus:border-brand-darkred focus:outline-none focus:ring-4 focus:ring-brand-darkred/10 disabled:bg-brand-paper";
 
 export const buttonPrimary =
-    "inline-flex items-center justify-center gap-2 rounded-xl bg-[#8B1D24] hover:bg-[#72151B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B1D24] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer";
+    "inline-flex items-center justify-center gap-2 rounded-full py-2.5 bg-linear-to-r from-brand-signal to-brand-darkred px-5 text-sm font-semibold text-white shadow-[0_4px_14px_0_rgba(122,16,24,0.25)] transition-all hover:-translate-y-px hover:shadow-[0_6px_20px_0_rgba(122,16,24,0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-darkred disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonSecondary =
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E293B] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer";
+    "inline-flex items-center justify-center gap-2 rounded-full py-2.5 border border-brand-ink/15 bg-white px-5 text-sm font-semibold text-brand-ink transition-colors hover:bg-brand-softmist focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonDanger =
-    "inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer";
+    "inline-flex items-center justify-center gap-2 rounded-full py-2.5 bg-red-600 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-60";
 
 // Tombol ikon kecil di baris tabel/kartu (edit, hapus, naik, turun)
 export const iconButton =
-    "inline-flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B1D24] disabled:pointer-events-none disabled:opacity-30 cursor-pointer";
+    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-brand-muted transition-colors hover:bg-brand-softmist hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-darkred disabled:pointer-events-none disabled:opacity-30";
 
-export const cardClass = "rounded-2xl border border-slate-200/80 bg-white shadow-sm";
+export const cardClass = "rounded-card border border-brand-ink/10 bg-white shadow-card";

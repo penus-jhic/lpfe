@@ -62,11 +62,6 @@ function ShowcaseCard({ item, featured }: { item: ShowcaseItem; featured: boolea
             {/* Aksen garis highlight di atas saat di-hover */}
             <div className="absolute top-0 inset-x-0 h-0.5 bg-linear-to-r from-transparent via-brand-warmred to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Badge kategori dengan efek glassmorphism */}
-            <span className="absolute left-4 top-4 rounded-full bg-white/95 backdrop-blur-xs px-3 py-1 text-xs font-semibold text-brand-darkred shadow-sm transition-transform duration-300 group-hover:scale-105">
-                {item.category}
-            </span>
-
             {/* text-left: kartu sempit, teks yang terbungkus jadi renggang kalau ikut justify dari body */}
             <figcaption className={`absolute inset-x-0 bottom-0 text-left text-white ${featured ? "p-5 lg:p-8" : "p-4 md:p-5"}`}>
                 {/* Label besar hanya saat kartunya besar (desktop), sama seperti label "Newest" di kartu berita */}

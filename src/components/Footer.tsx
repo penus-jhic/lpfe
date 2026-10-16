@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import Icon, { type IconName } from "./Icon";
 import { ppdbLink, whatsappUrl, type MenuLink } from "../data/navigation";
 import { newsCategories } from "../data/news";
-import { useAuth, type AuthStatus } from "../admin/auth/auth-context";
-import { getToken } from "../lib/api";
-import logoSekolah from "../assets/images/logosmkpenus.png";
+import { useAuth } from "../admin/auth/auth-context";
+import { dashboardLink } from "../admin/auth/dashboard-link";
+import { loadAdminApp } from "../admin/loadAdminApp";
+import logoSekolah from "../assets/images/logosmkpenus.webp";
 import logoPartner from "../assets/images/logofooter.webp";
-import fotoTalentaVokasi from "../assets/images/TalentaVokasi.png";
+import fotoTalentaVokasi from "../assets/images/TalentaVokasi.webp";
 import { SketchArrow, SketchSparks } from "./SketchFrame";
 
 const brochureUrl = "https://images.lekar.co.id/file/pelita/infografis_pelita_nusantara.pdf";
@@ -35,14 +36,6 @@ const mainLinks: MenuLink[] = [
     { label: "Cek Status Pendaftar (NISN)", href: `${ppdbLink.href}/cek-status`, external: true },
     { label: "Profil Sekolah Resmi", href: "https://smkpluspnb.sch.id" },
 ];
-
-// Admin, Kepala Sekolah & TU ke panel admin. Sesi lain (siswa/alumni) diarahkan BKK lewat /bkk/akun ke /bkk/me,
-// yang belum masuk ke halaman login
-function dashboardLink(status: AuthStatus): MenuLink {
-    if (status !== "guest") return { label: "Dashboard", href: "/admin" };
-    if (getToken()) return { label: "Dashboard", href: "/bkk/akun", external: true };
-    return { label: "Dashboard", href: "/login" };
-}
 
 // ?kategori= bisa dibaca halaman /berita nanti untuk langsung memfilter
 const newsLinks: MenuLink[] = newsCategories.map((category) => ({
@@ -265,8 +258,11 @@ function FooterLink({ link }: { link: MenuLink }) {
         )
     }
 
+    // Kode panel admin mulai diunduh saat link-nya disorot, supaya dasbor langsung terbuka saat diklik
+    const preload = link.href === "/admin" ? () => void loadAdminApp() : undefined;
+
     return(
-        <Link to={link.href} reloadDocument={link.external} className={className}>
+        <Link to={link.href} reloadDocument={link.external} onMouseEnter={preload} onFocus={preload} className={className}>
             {link.label}
         </Link>
     )

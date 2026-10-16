@@ -7,7 +7,7 @@ import { useDocumentTitle } from "../../admin/lib/format";
 import Icon, { type IconName } from "../../components/Icon";
 import { SketchArrow, SketchBox, SketchRule, SketchSparks, SketchUnderline } from "../../components/SketchFrame";
 import { ApiError } from "../../lib/api";
-import logoSekolah from "../../assets/images/logosmkpenus.png";
+import logoSekolah from "../../assets/images/logosmkpenus.webp";
 import fotoGedung from "../../assets/images/fotogedung.jpg";
 
 // Isi yang bisa dikelola dari panel admin, tampil sebagai daftar berpanah coretan di panel kiri
@@ -80,7 +80,7 @@ export default function LoginPage() {
         <main className="min-h-svh grid lg:grid-cols-2 bg-white text-brand-ink text-left">
             {/* Kiri (desktop): panel merek gelap di atas foto gedung sekolah */}
             <section className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-brand-ink p-12 xl:p-16 text-white">
-                <img src={fotoGedung} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={fotoGedung} alt="" className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" />
                 <div aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-brand-deepred/90 via-brand-ink/90 to-brand-ink" />
                 {/* Dekorasi titik-titik, sama seperti halaman 404 */}
                 <div aria-hidden="true" className="pointer-events-none absolute right-10 top-12 w-40 h-28 bg-[radial-gradient(circle,rgb(255_255_255/0.12)_2px,transparent_2.5px)] bg-size-[22px_22px]" />

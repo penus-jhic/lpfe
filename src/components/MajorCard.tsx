@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Icon from "./Icon";
 import { SketchArrow, SketchRule } from "./SketchFrame";
 import type { Major } from "../data/majors";
-import logoSekolah from "../assets/images/logosmkpenus.png";
+import logoSekolah from "../assets/images/logosmkpenus.webp";
 
 export default function MajorCard({ major }: { major: Major }) {
     const name = `${major.highlight} ${major.rest}`.trim();

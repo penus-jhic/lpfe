@@ -20,7 +20,7 @@ export default function HeroFacilities() {
 
     return(
         <section className="relative overflow-hidden bg-brand-ink text-white px-6 pt-36 pb-28 md:pt-40 md:pb-32">
-            <img src={fotoGedung} alt="" className="absolute inset-0 size-full object-cover" />
+            <img src={fotoGedung} alt="" className="absolute inset-0 size-full object-cover" fetchPriority="high" />
             {/* Gelap di sisi teks supaya tetap terbaca (di HP teks & statistik menumpuk, jadi gelap merata),
                 lalu rona merah di kanan atas seperti latar sebelumnya */}
             <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/80 lg:bg-transparent lg:bg-linear-to-r lg:from-brand-ink/95 lg:via-brand-ink/80 lg:to-brand-ink/50" />

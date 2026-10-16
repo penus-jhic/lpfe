@@ -1,5 +1,5 @@
 // TODO: sementara pakai foto kepala sekolah, ganti dengan foto yang menggambarkan sejarah sekolah
-import fotoKepsek from "../../assets/images/Kepsek.png";
+import fotoKepsek from "../../assets/images/Kepsek.webp";
 import SketchFrame, { SketchLine } from "../SketchFrame";
 
 export default function HistoryAbout() {

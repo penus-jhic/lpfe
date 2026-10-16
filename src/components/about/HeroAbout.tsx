@@ -5,7 +5,7 @@ import { SketchUnderline } from "../SketchFrame";
 export default function HeroAbout() {
     return(
         <section className="relative flex items-end justify-center h-[70svh] min-h-112 overflow-hidden bg-brand-ink px-6 pb-20 md:pb-28 text-white">
-            <img src={fotoGedung} alt="" className="absolute inset-0 size-full object-cover" />
+            <img src={fotoGedung} alt="" className="absolute inset-0 size-full object-cover" fetchPriority="high" />
             {/* Makin gelap ke bawah supaya tulisan tetap terbaca di atas foto */}
             <div aria-hidden="true" className="absolute inset-0 bg-linear-to-b from-brand-ink/30 via-brand-ink/40 to-brand-ink/85" />
 

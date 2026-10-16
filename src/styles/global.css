@@ -41,13 +41,22 @@
   --color-brand-signal: #B72A32;
   --color-brand-warmred: #D04A43;
   --color-brand-rose: #A66B6E;
+  --color-brand-paper: #F5F4F2;
+  --color-brand-navy: #1E293B;
+  --color-brand-blue: #2563EB;
+  --color-brand-muted: #6F5E60;
 
   --shadow-softpill: 0 8px 30px -8px rgb(36 16 18 / 0.18);
+  --shadow-card: 0 4px 20px -4px rgb(15 23 42 / 0.06);
 
   /* Radius semua kartu & panel: pakai "rounded-card", jangan rounded-md/lg/2xl */
   --radius-card: 1rem;
 
   --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-zoom-in: zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Garis pemuatan yang bolak-balik, untuk layar "Menyiapkan Dasbor" */
+  --animate-loading-bar: loading-bar 1.4s ease-in-out infinite;
 
   @keyframes fade-up {
     from {
@@ -57,6 +66,35 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoom-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes loading-bar {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
     }
   }
 }
@@ -90,7 +128,30 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-zoom-in {
     animation: none;
   }
+}
+
+/* ========================================================
+   Palet dashboard bersama (panel admin CMS, BKK, dan PPDB)
+   Maroon tetap warna utama; tinta & permukaan gelap memakai navy, netral memakai slate.
+   Dipasang lewat kelas "dash-theme" di akar panel admin, jadi situs publik tidak berubah.
+   Nilai yang sama ada di ppdb/resources/css/app.css (.dash-theme) dan bkk/resources/views/partials/dashboard-theme.blade.php.
+   ======================================================== */
+.dash-theme {
+  --color-brand-ink: #1E293B;
+  --color-brand-mist: #E2E8F0;
+  --color-brand-softmist: #EEF2F6;
+  --color-brand-paper: #F5F7FA;
+  --color-brand-muted: #64748B;
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+}
+
+.dash-theme ::selection {
+  background-color: #7A1018;
+  color: #FFFFFF;
 }

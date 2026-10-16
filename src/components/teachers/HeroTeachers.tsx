@@ -31,6 +31,7 @@ export default function HeroTeachers() {
                 src={fotoGedung}
                 alt=""
                 className="absolute inset-0 size-full object-cover scale-105 blur-xs"
+                fetchPriority="high"
             />
             {/* Lapisan gelap + gradasi merah di kanan atas supaya tulisan tetap terbaca di atas foto */}
             <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/75" />

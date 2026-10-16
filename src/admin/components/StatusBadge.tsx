@@ -3,7 +3,7 @@ import type { NewsStatus } from "../../data/news";
 const styles: Record<NewsStatus, { label: string; className: string }> = {
     published: { label: "Terbit", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
     scheduled: { label: "Terjadwal", className: "bg-amber-50 text-amber-700 border-amber-200" },
-    draft: { label: "Draf", className: "bg-slate-100 text-slate-600 border-slate-200" },
+    draft: { label: "Draf", className: "bg-brand-softmist text-brand-ink/70 border-brand-ink/10" },
 };
 
 export default function StatusBadge({ status }: { status: NewsStatus }) {

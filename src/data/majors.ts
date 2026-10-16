@@ -7,25 +7,25 @@ import fotoKelasPKM from "../assets/images/majors/pkm/heroImage.jpg";
 import fotoKelasTOI from "../assets/images/majors/toi/heroImage.jpeg";
 
 // logo jurusan di pojok kiri atas kartu jurusan
-import logoMM from "../assets/images/logojurusan/logo-mm.png";
-import logoRPL from "../assets/images/logojurusan/logo-rpl.png";
-import logoTKJ from "../assets/images/logojurusan/logo-tkj.png";
-import logoPKM from "../assets/images/logojurusan/logo-pkm.png";
-import logoTOI from "../assets/images/logojurusan/logo-toi.png";
+import logoMM from "../assets/images/logojurusan/logo-mm.webp";
+import logoRPL from "../assets/images/logojurusan/logo-rpl.webp";
+import logoTKJ from "../assets/images/logojurusan/logo-tkj.webp";
+import logoPKM from "../assets/images/logojurusan/logo-pkm.webp";
+import logoTOI from "../assets/images/logojurusan/logo-toi.webp";
 
 // ini bagian landingpage
-import fotoLandingRPL from "../assets/images/majors/rpl/LandingPageRPL.png";
-import fotoLandingTKJ from "../assets/images/majors/tkj/LandingPageTKJ.png";
-import fotoLandingPKM from "../assets/images/majors/pkm/LandingPagePKM.png";
-import fotoLandingMM from "../assets/images/majors/mm/LandingPageMM.png";
-import fotoLandingTOI from "../assets/images/majors/toi/LandingPageTOI.png";
+import fotoLandingRPL from "../assets/images/majors/rpl/LandingPageRPL.webp";
+import fotoLandingTKJ from "../assets/images/majors/tkj/LandingPageTKJ.webp";
+import fotoLandingPKM from "../assets/images/majors/pkm/LandingPagePKM.webp";
+import fotoLandingMM from "../assets/images/majors/mm/LandingPageMM.webp";
+import fotoLandingTOI from "../assets/images/majors/toi/LandingPageTOI.webp";
 
 // ini bagian card hero di halaman jurusan
-import fotoHeroCardImageMM from "../assets/images/majors/mm/fotoMM.png";
-import fotoHeroCardImageRPL from "../assets/images/majors/rpl/fotoRPL.png";
-import fotoHeroCardImageTKJ from "../assets/images/majors/tkj/fotoTKJ.png";
-import fotoHeroCardImagePKM from "../assets/images/majors/pkm/fotoPKM.png";
-import fotoHeroCardImageTOI from "../assets/images/majors/toi/fotoTOI.png";
+import fotoHeroCardImageMM from "../assets/images/majors/mm/fotoMM.webp";
+import fotoHeroCardImageRPL from "../assets/images/majors/rpl/fotoRPL.webp";
+import fotoHeroCardImageTKJ from "../assets/images/majors/tkj/fotoTKJ.webp";
+import fotoHeroCardImagePKM from "../assets/images/majors/pkm/fotoPKM.webp";
+import fotoHeroCardImageTOI from "../assets/images/majors/toi/fotoTOI.webp";
 
 // MM Photos
 import fotoDevactoMM1 from "../assets/images/majors/mm/devacto-1.jpg";
@@ -106,7 +106,7 @@ export type ShowcaseItem = {
     by: string;       // kelas pembuat karya, contoh: "Kelas XII RPL 1"
     category: string; // jenis karya, tampil sebagai label di pojok foto
     icon: IconName;   // ditampilkan selama belum ada foto
-    image?: string;   // import foto/tangkapan layar karya, contoh: import fotoKasir from "../assets/images/majors/rpl/kasir.png"
+    image?: string;   // import foto/tangkapan layar karya, contoh: import fotoKasir from "../assets/images/majors/rpl/kasir.webp"
 };
 
 export type Major = {
@@ -123,7 +123,7 @@ export type Major = {
     devacto: Devacto; // kegiatan Devacto (pendalaman keahlian setelah jam sekolah) di jurusan ini
     showcase: ShowcaseItem[];
     careers: string[];
-    image?: string; // foto kartu jurusan (potret 3:5), contoh: import fotoRPL from "../assets/images/rpl.png"
+    image?: string; // foto kartu jurusan (potret 3:5), contoh: import fotoRPL from "../assets/images/rpl.webp"
     logo?: string; // logo jurusan di pojok kiri atas kartu, kalau kosong pakai logo sekolah
     heroImage?: string; // foto kegiatan untuk latar hero (ditampilkan blur), kalau kosong pakai foto gedung sekolah
     heroCardImage?: string; // foto kegiatan untuk kartu hero (ditampilkan jelas), kalau kosong pakai foto gedung sekolah

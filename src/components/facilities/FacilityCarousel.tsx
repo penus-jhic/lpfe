@@ -7,19 +7,24 @@ import type { Facility } from "../../data/facilities";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+const phoneBreakpoints = { 640: { slidesPerView: 1.6 } };
+const wideBreakpoints = { ...phoneBreakpoints, 768: { slidesPerView: 1.8 }, 1024: { slidesPerView: 2.5, spaceBetween: 32 } };
+
 // Pengganti daftar panjang di HP (di bawah md): satu kartu di tengah, kartu di sampingnya mengintip & memudar,
 // digeser dengan swipe atau panah seperti carousel jurusan di beranda. Tidak geser otomatis karena kartunya berisi
 // teks yang perlu waktu dibaca (foto di dalam kartu sudah berganti sendiri). renderSlide = isi tiap kartu.
-export default function FacilityCarousel({ items, renderSlide, className = "" }: {
+// allSizes = tetap jadi carousel di tablet & desktop (kartu samping lebih banyak terlihat), bukan hanya di HP
+export default function FacilityCarousel({ items, renderSlide, allSizes = false, className = "" }: {
     items: Facility[];
     renderSlide: (facility: Facility, index: number) => ReactNode;
+    allSizes?: boolean;
     className?: string;
 }) {
     const [swiper, setSwiper] = useState<SwiperClass | null>(null);
     const [active, setActive] = useState(0);
 
     return(
-        <div className={`md:hidden ${className}`}>
+        <div className={`${allSizes ? "" : "md:hidden"} ${className}`}>
             <Swiper
                 modules={[A11y]}
                 loop
@@ -27,7 +32,7 @@ export default function FacilityCarousel({ items, renderSlide, className = "" }:
                 // spaceBetween 24 = gap-6, jarak minimal supaya ujung bingkai coretan kartu bersebelahan tidak bertabrakan
                 slidesPerView={1.25}
                 spaceBetween={24}
-                breakpoints={{ 640: { slidesPerView: 1.6 } }}
+                breakpoints={allSizes ? wideBreakpoints : phoneBreakpoints}
                 onSwiper={setSwiper}
                 onRealIndexChange={(s) => setActive(s.realIndex)}
                 // "!" menimpa margin & padding bawaan swiper.css. -mx-6 = selebar layar,

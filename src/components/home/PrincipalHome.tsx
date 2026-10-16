@@ -1,4 +1,4 @@
-import fotoKepsek from "../../assets/images/Kepsek.png"
+import fotoKepsek from "../../assets/images/Kepsek.webp"
 import SketchFrame from "../SketchFrame";
 
 export default function PrincipalHome() {

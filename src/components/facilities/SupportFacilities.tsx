@@ -30,23 +30,15 @@ export default function SupportFacilities() {
 
                 <FacilityListState loaded={facilities !== undefined} error={error} onRetry={reload} />
 
-                {/* HP: carousel, digeser dengan panah */}
+                {/* Semua ukuran layar: carousel, digeser dengan swipe atau panah. Foto kartunya bisa diklik untuk diperbesar */}
                 {supportFacilities.length > 0 && (
                     <FacilityCarousel
                         items={supportFacilities}
-                        className="mt-10"
+                        allSizes
+                        className="mt-10 md:mt-16"
                         renderSlide={(facility) => <SupportCard facility={facility} />}
                     />
                 )}
-
-                {/* Tablet & desktop: grid. gap-6: ujung bingkai coretan kebablasan ±8px, jadi kartu bersebelahan tidak saling tabrak */}
-                <ul className="mt-16 hidden md:grid gap-6 grid-cols-2 lg:grid-cols-4">
-                    {supportFacilities.map((facility, i) => (
-                        <li key={facility.id}>
-                            <SupportCard facility={facility} delay={(i % 4) * 150} />
-                        </li>
-                    ))}
-                </ul>
             </div>
         </section>
     )
@@ -56,9 +48,9 @@ export default function SupportFacilities() {
 // text-left: kartu sempit, teks yang terbungkus jadi renggang kalau ikut justify dari body
 function SupportCard({ facility, delay = 0 }: { facility: Facility; delay?: number }) {
     return(
-        <article className="relative h-full flex flex-col bg-white p-3 text-left transition-transform duration-300 hover:-translate-y-1">
+        <article className="relative h-full flex flex-col bg-white p-3 text-left">
             <SketchBox delay={delay} />
-            <FacilityPhotos facility={facility} className="aspect-video" iconSize="w-16 h-16" />
+            <FacilityPhotos facility={facility} className="aspect-video" iconSize="w-16 h-16" zoomable />
 
             <div className="flex-1 px-2 pt-5 pb-3 md:px-3">
                 <h3 className="text-lg font-semibold">{facility.title}</h3>

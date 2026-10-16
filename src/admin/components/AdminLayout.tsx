@@ -1,8 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import AdminIcon, { type AdminIconName } from "./AdminIcon";
+import DashboardShortcuts from "./DashboardShortcuts";
+import { SketchUnderline } from "../../components/SketchFrame";
 import { useAuth } from "../auth/auth-context";
-import logoSekolah from "../../assets/images/logosmkpenus.png";
+import { dashboardPath, type DashboardSummary } from "../lib/dashboard";
+import type { Resource } from "../../lib/api";
+import { useApi } from "../../lib/useApi";
+import logoSekolah from "../../assets/images/logosmkpenus.webp";
+
+// Kerangka panel admin CMS. Tata letaknya (header, sidebar, Pintas Dashboard, kaki) sama dengan panel admin BKK & PPDB.
 
 type NavItem = {
     to: string;
@@ -11,104 +18,102 @@ type NavItem = {
     end?: boolean;
 };
 
-const contentNavItems: NavItem[] = [
-    { to: "/admin", label: "Dashboard Utama", icon: "dashboard", end: true },
-    { to: "/admin/berita", label: "Berita Sekolah", icon: "news" },
-    { to: "/admin/program", label: "Program Unggulan", icon: "star" },
-    { to: "/admin/talent-day", label: "Talent Day", icon: "sparkles" },
-    { to: "/admin/ekskul", label: "Ekstrakurikuler", icon: "trophy" },
-    { to: "/admin/fasilitas", label: "Fasilitas & Sarana", icon: "building" },
+const navGroups: { label: string; items: NavItem[] }[] = [
+    {
+        label: "Manajemen Konten",
+        items: [
+            { to: "/admin", label: "Dashboard", icon: "dashboard", end: true },
+            { to: "/admin/berita", label: "Berita Sekolah", icon: "news" },
+            { to: "/admin/program", label: "Program Unggulan", icon: "star" },
+            { to: "/admin/talent-day", label: "Talent Day", icon: "sparkles" },
+            { to: "/admin/ekskul", label: "Ekstrakurikuler", icon: "trophy" },
+            { to: "/admin/fasilitas", label: "Fasilitas & Sarana", icon: "building" },
+        ],
+    },
+    {
+        label: "Pengaturan",
+        items: [{ to: "/admin/akun", label: "Akun & Keamanan", icon: "user" }],
+    },
 ];
 
-const settingNavItems: NavItem[] = [
-    { to: "/admin/akun", label: "Akun & Keamanan", icon: "user" },
-];
-
-const portalNavItems: { href: string; label: string; icon: AdminIconName }[] = [
-    { href: "/", label: "Beranda Utama", icon: "globe" },
+const publicLinks: { href: string; label: string; icon: AdminIconName }[] = [
+    { href: "/", label: "Beranda Sekolah", icon: "globe" },
     { href: "/berita", label: "Halaman Berita", icon: "news" },
     { href: "/fasilitas", label: "Halaman Fasilitas", icon: "building" },
-    { href: "/kegiatan", label: "Halaman Kegiatan Siswa", icon: "trophy" },
+    { href: "/kegiatan", label: "Kegiatan Siswa", icon: "trophy" },
 ];
 
-type DashboardShortcutItem = {
-    label: string;
-    desc: string;
-    href: string;
-    icon: AdminIconName;
-    isCurrent: boolean;
-};
+const sectionLabel = "font-display text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-darkred";
 
-const dashboardShortcutItems: DashboardShortcutItem[] = [
-    {
-        href: "/admin",
-        label: "CMS Portal Utama",
-        desc: "Web & Konten",
-        icon: "globe",
-        isCurrent: true,
-    },
-    {
-        href: "/bkk/admin",
-        label: "Admin BKK",
-        desc: "Bursa Kerja & Karir",
-        icon: "briefcase",
-        isCurrent: false,
-    },
-    {
-        href: "/ppdb/dashboard",
-        label: "Admin PPDB",
-        desc: "Penerimaan Siswa",
-        icon: "graduationCap",
-        isCurrent: false,
-    },
-];
+function SectionLabel({ children }: { children: string }) {
+    return(
+        <div className="px-3 pb-1.5 flex items-center gap-2">
+            <span className={sectionLabel}>{children}</span>
+            <span className="h-px flex-1 bg-brand-ink/10" />
+        </div>
+    )
+}
 
-// Helper to determine active page title in the topbar
-function getPageTitle(pathname: string): string {
-    if (pathname === "/admin") return "Dashboard Utama";
-    if (pathname.startsWith("/admin/berita")) {
-        if (pathname.includes("/baru")) return "Tulis Berita Baru";
-        return "Kelola Berita";
-    }
-    if (pathname.startsWith("/admin/program")) {
-        if (pathname.includes("/baru")) return "Tambah Program Unggulan";
-        return "Kelola Program Unggulan";
-    }
-    if (pathname.startsWith("/admin/talent-day")) {
-        if (pathname.includes("/baru")) return "Tambah Talent Day";
-        return "Kelola Talent Day";
-    }
-    if (pathname.startsWith("/admin/ekskul")) {
-        if (pathname.includes("/baru")) return "Tambah Ekstrakurikuler";
-        return "Kelola Ekstrakurikuler";
-    }
-    if (pathname.startsWith("/admin/fasilitas")) {
-        if (pathname.includes("/baru")) return "Tambah Fasilitas";
-        return "Kelola Fasilitas";
-    }
-    if (pathname.startsWith("/admin/akun")) return "Pengaturan Akun";
-    return "Panel Admin";
+function SideLink({ item }: { item: NavItem }) {
+    return(
+        <NavLink
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+                `group flex items-center justify-between gap-2 h-10 px-3 rounded-xl text-[13px] transition-colors ${
+                    isActive ? "bg-brand-paper text-brand-darkred font-bold" : "text-brand-ink font-medium hover:bg-brand-paper"
+                }`
+            }
+        >
+            {({ isActive }) => (
+                <span className="flex items-center gap-3 min-w-0">
+                    <AdminIcon
+                        name={item.icon}
+                        className={`w-4 h-4 shrink-0 ${isActive ? "text-brand-darkred" : "text-brand-muted group-hover:text-brand-ink"}`}
+                    />
+                    {isActive ? <SketchUnderline size="sm">{item.label}</SketchUnderline> : <span className="truncate">{item.label}</span>}
+                </span>
+            )}
+        </NavLink>
+    )
 }
 
 export default function AdminLayout() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
+    const [search, setSearch] = useState("");
     const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+    const { data } = useApi<Resource<DashboardSummary>>(dashboardPath);
+    const summary = data?.data;
 
     const profileRef = useRef<HTMLDivElement>(null);
     const notifRef = useRef<HTMLDivElement>(null);
 
-    const pageTitle = getPageTitle(location.pathname);
-
-    // Initial for avatar
     const displayName = user?.nama_lengkap ?? user?.name ?? user?.username ?? "Admin";
-    const nameParts = displayName.trim().split(/\s+/);
-    const initials = nameParts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("") || "AD";
+    const initials = displayName.trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("") || "AD";
     const roleLabel = (user?.role ?? "ADMIN").replace(/_/g, " ");
 
-    // Close slideover drawer on Escape
+    // Antrean konten yang perlu ditangani, sama dengan isi "Perlu Tindakan" di dashboard
+    const alerts = [
+        { count: summary?.news.draft ?? 0, title: "Draf berita", desc: "Belum tampil di situs, tinjau lalu terbitkan.", to: "/admin/berita?status=draft" },
+        { count: summary?.news.scheduled ?? 0, title: "Berita terjadwal", desc: "Akan terbit otomatis sesuai tanggalnya.", to: "/admin/berita?status=scheduled" },
+    ].filter((alert) => alert.count > 0);
+    const alertTotal = alerts.reduce((sum, alert) => sum + alert.count, 0);
+
+    // Halaman Berita punya kotak pencariannya sendiri, jadi pencarian di header disembunyikan di sana
+    const onNewsList = location.pathname === "/admin/berita";
+
+    const submitSearch = (e: FormEvent) => {
+        e.preventDefault();
+        const query = search.trim();
+        navigate(query ? `/admin/berita?search=${encodeURIComponent(query)}` : "/admin/berita");
+        setSearch("");
+    };
+
+    // Sidebar mobile: tutup dengan Escape dan kunci scroll halaman selama terbuka
     useEffect(() => {
         if (!menuOpen) return;
         const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
@@ -120,22 +125,27 @@ export default function AdminLayout() {
         };
     }, [menuOpen]);
 
-    // Close dropdowns when clicking outside
+    // Dropdown: tutup saat klik di luar atau tekan Escape
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
+        const onMouseDown = (e: MouseEvent) => {
             const target = e.target as Node;
-            if (profileRef.current && !profileRef.current.contains(target)) {
-                setProfileOpen(false);
-            }
-            if (notifRef.current && !notifRef.current.contains(target)) {
-                setNotifOpen(false);
-            }
+            if (profileRef.current && !profileRef.current.contains(target)) setProfileOpen(false);
+            if (notifRef.current && !notifRef.current.contains(target)) setNotifOpen(false);
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== "Escape") return;
+            setProfileOpen(false);
+            setNotifOpen(false);
+        };
+        document.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", onMouseDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
     }, []);
 
-    // Close dropdowns on route changes
+    // Pindah halaman menutup sidebar mobile & dropdown
     const [prevPath, setPrevPath] = useState(location.pathname);
     if (prevPath !== location.pathname) {
         setPrevPath(location.pathname);
@@ -144,472 +154,256 @@ export default function AdminLayout() {
         setMenuOpen(false);
     }
 
+    const dropdownLink = "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-brand-ink hover:bg-brand-paper transition-colors";
+
     return (
-        <div className="min-h-screen flex flex-row bg-[#F8F9FA] text-[#0F172A] font-sans antialiased selection:bg-[#8B1D24] selection:text-white">
-            {/* MOBILE SLIDE-OVER DRAWER */}
-            {menuOpen && (
-                <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true" aria-label="Menu admin">
-                    {/* Backdrop */}
-                    <div
-                        onClick={() => setMenuOpen(false)}
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in"
-                    />
+        <div className="dash-theme min-h-screen flex flex-col font-sans antialiased">
+            {/* HEADER */}
+            <header className="sticky top-0 z-30 h-16 bg-white/95 backdrop-blur border-b border-brand-ink/10 flex items-center gap-2 px-3 sm:px-5">
+                <button
+                    type="button"
+                    onClick={() => setMenuOpen(true)}
+                    aria-label="Buka menu"
+                    className="lg:hidden w-10 h-10 rounded-full grid place-items-center hover:bg-brand-softmist text-brand-ink transition-colors"
+                >
+                    <AdminIcon name="menu" className="w-5 h-5" />
+                </button>
 
-                    {/* Drawer Sidebar */}
-                    <div className="relative w-72 bg-white border-r border-slate-200 flex flex-col justify-between z-10 h-full select-none shadow-2xl animate-fade-up">
-                        <div className="flex flex-col flex-1 overflow-y-auto">
-                            {/* Top Brand */}
-                            <div className="h-18 px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-[#1E293B] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden p-1.5">
-                                        <img src={logoSekolah} alt="Logo" className="h-full w-full object-contain" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <div className="font-bold text-base leading-tight tracking-tight text-[#0F172A] truncate">
-                                            Panel Admin
-                                        </div>
-                                        <div className="text-[10px] font-medium text-[#64748B] truncate">
-                                            SMK Plus Pelita Nusantara
-                                        </div>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setMenuOpen(false)}
-                                    aria-label="Tutup menu"
-                                    className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                                >
-                                    <AdminIcon name="close" className="w-5 h-5" />
-                                </button>
-                            </div>
+                <Link to="/admin" className="flex items-center gap-2.5 group shrink-0" title="Dashboard CMS Portal Utama">
+                    <img src={logoSekolah} alt="Logo SMK Plus Pelita Nusantara" className="w-9 h-9 object-contain group-hover:scale-105 transition-transform" />
+                    <span className="hidden sm:flex flex-col">
+                        <span className="font-display text-[15px] font-bold uppercase tracking-wide text-brand-ink leading-tight group-hover:text-brand-darkred transition-colors">
+                            Portal Pelita Nusantara
+                        </span>
+                        <span className="text-[10px] uppercase font-semibold tracking-wider text-brand-darkred mt-0.5">Panel Admin CMS</span>
+                    </span>
+                </Link>
 
-                            {/* Nav items */}
-                            <div className="p-4 space-y-6 flex-1">
-                                <div>
-                                    <div className="px-3 mb-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                            MANAJEMEN KONTEN
-                                        </span>
-                                    </div>
-                                    <nav className="space-y-1">
-                                        {contentNavItems.map((item) => (
-                                            <NavLink
-                                                key={item.to}
-                                                to={item.to}
-                                                end={item.end}
-                                                onClick={() => setMenuOpen(false)}
-                                                className={({ isActive }) =>
-                                                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                                                        isActive
-                                                            ? "bg-[#1E293B] text-white shadow-sm"
-                                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                                    }`
-                                                }
-                                            >
-                                                <AdminIcon name={item.icon} className="w-4 h-4 shrink-0" />
-                                                <span>{item.label}</span>
-                                            </NavLink>
-                                        ))}
-                                    </nav>
-                                </div>
-
-                                <div>
-                                    <div className="px-3 mb-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                            PORTAL & SITUS PUBLIK
-                                        </span>
-                                    </div>
-                                    <nav className="space-y-1">
-                                        {portalNavItems.map((item) => (
-                                            <a
-                                                key={item.href}
-                                                href={item.href}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <AdminIcon name={item.icon} className="w-4 h-4 text-slate-500 shrink-0" />
-                                                    <span>{item.label}</span>
-                                                </div>
-                                                <AdminIcon name="external" className="w-3.5 h-3.5 text-slate-400" />
-                                            </a>
-                                        ))}
-                                    </nav>
-                                </div>
-
-                                <div>
-                                    <div className="px-3 mb-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                            PINTAS DASHBOARD
-                                        </span>
-                                    </div>
-                                    <nav className="space-y-1">
-                                        {dashboardShortcutItems.map((item) =>
-                                            item.isCurrent ? (
-                                                <div
-                                                    key={item.href}
-                                                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-[#1E293B] text-white shadow-sm"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <AdminIcon name={item.icon} className="w-4 h-4 shrink-0 text-white" />
-                                                        <span>{item.label}</span>
-                                                    </div>
-                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                                                        Aktif
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <a
-                                                    key={item.href}
-                                                    href={item.href}
-                                                    onClick={() => setMenuOpen(false)}
-                                                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors group"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <AdminIcon name={item.icon} className="w-4 h-4 text-slate-500 group-hover:text-slate-700 shrink-0" />
-                                                        <span>{item.label}</span>
-                                                    </div>
-                                                    <AdminIcon name="external" className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />
-                                                </a>
-                                            )
-                                        )}
-                                    </nav>
-                                </div>
-
-                                <div>
-                                    <div className="px-3 mb-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                            PENGATURAN
-                                        </span>
-                                    </div>
-                                    <nav className="space-y-1">
-                                        {settingNavItems.map((item) => (
-                                            <NavLink
-                                                key={item.to}
-                                                to={item.to}
-                                                onClick={() => setMenuOpen(false)}
-                                                className={({ isActive }) =>
-                                                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                                                        isActive
-                                                            ? "bg-[#1E293B] text-white shadow-sm"
-                                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                                    }`
-                                                }
-                                            >
-                                                <AdminIcon name={item.icon} className="w-4 h-4 shrink-0" />
-                                                <span>{item.label}</span>
-                                            </NavLink>
-                                        ))}
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {/* Pencarian berita */}
+                <div className="flex-1 max-w-xl mx-auto hidden md:block">
+                    {!onNewsList && (
+                        <form onSubmit={submitSearch} role="search">
+                            <label className="flex items-center gap-3 h-10 rounded-full bg-brand-paper border border-brand-ink/10 focus-within:bg-white focus-within:border-brand-darkred focus-within:ring-4 focus-within:ring-brand-darkred/10 px-4 transition-all">
+                                <AdminIcon name="search" className="w-4 h-4 text-brand-muted" />
+                                <input
+                                    type="search"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Cari berita berdasarkan judul atau isi…"
+                                    aria-label="Cari berita"
+                                    className="flex-1 bg-transparent outline-none text-sm placeholder:text-brand-muted text-brand-ink"
+                                />
+                            </label>
+                        </form>
+                    )}
                 </div>
-            )}
 
-            {/* LEFT SIDEBAR (STICKY ON DESKTOP) */}
-            <aside className="hidden lg:flex w-68 shrink-0 h-screen sticky top-0 bg-white border-r border-slate-200/80 flex-col justify-between select-none z-20">
-                {/* Brand & Navigation */}
-                <div className="flex flex-col flex-1 overflow-y-auto">
-                    {/* Brand header */}
-                    <div className="h-18 px-5 border-b border-slate-100 flex items-center gap-3 bg-white shrink-0">
-                        <div className="w-10 h-10 rounded-2xl bg-[#1E293B] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 overflow-hidden p-1.5">
-                            <img src={logoSekolah} alt="Logo" className="h-full w-full object-contain" />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="font-bold text-base leading-tight tracking-tight text-[#0F172A] truncate">
-                                Panel Admin
-                            </div>
-                            <div className="text-[10px] font-medium text-[#64748B] truncate">
-                                SMK Plus Pelita Nusantara
-                            </div>
-                        </div>
-                    </div>
+                <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5">
+                    <a
+                        href="/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-xs font-semibold text-brand-ink bg-white border border-brand-ink/15 hover:bg-brand-softmist transition-colors"
+                    >
+                        <AdminIcon name="external" className="w-3.5 h-3.5 text-brand-darkred" />
+                        <span>Web Publik</span>
+                    </a>
 
-                    {/* Navigation groups */}
-                    <div className="p-4 space-y-6">
-                        {/* Section 1: Manajemen Konten */}
-                        <div>
-                            <div className="px-3 mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                    MANAJEMEN KONTEN
-                                </span>
-                            </div>
-                            <nav className="space-y-1">
-                                {contentNavItems.map((item) => (
-                                    <NavLink
-                                        key={item.to}
-                                        to={item.to}
-                                        end={item.end}
-                                        className={({ isActive }) =>
-                                            `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                                                isActive
-                                                    ? "bg-[#1E293B] text-white shadow-sm"
-                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                            }`
-                                        }
-                                    >
-                                        <AdminIcon name={item.icon} className="w-4 h-4 shrink-0" />
-                                        <span>{item.label}</span>
-                                    </NavLink>
-                                ))}
-                            </nav>
-                        </div>
-
-                        {/* Section 2: Portal & Informasi */}
-                        <div>
-                            <div className="px-3 mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                    PORTAL & SITUS PUBLIK
-                                </span>
-                            </div>
-                            <nav className="space-y-1">
-                                {portalNavItems.map((item) => (
-                                    <a
-                                        key={item.href}
-                                        href={item.href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <AdminIcon name={item.icon} className="w-4 h-4 text-slate-500 shrink-0" />
-                                            <span>{item.label}</span>
-                                        </div>
-                                        <AdminIcon name="external" className="w-3.5 h-3.5 text-slate-400" />
-                                    </a>
-                                ))}
-                            </nav>
-                        </div>
-
-                        {/* Section 3: Pintas Dashboard */}
-                        <div>
-                            <div className="px-3 mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                    PINTAS DASHBOARD
-                                </span>
-                            </div>
-                            <nav className="space-y-1">
-                                {dashboardShortcutItems.map((item) =>
-                                    item.isCurrent ? (
-                                        <div
-                                            key={item.href}
-                                            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-[#1E293B] text-white shadow-sm"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <AdminIcon name={item.icon} className="w-4 h-4 shrink-0 text-white" />
-                                                <span>{item.label}</span>
-                                            </div>
-                                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                                                Aktif
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <a
-                                            key={item.href}
-                                            href={item.href}
-                                            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <AdminIcon name={item.icon} className="w-4 h-4 text-slate-500 group-hover:text-slate-700 shrink-0" />
-                                                <span>{item.label}</span>
-                                            </div>
-                                            <AdminIcon name="external" className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />
-                                        </a>
-                                    )
-                                )}
-                            </nav>
-                        </div>
-
-                        {/* Section 4: Pengaturan */}
-                        <div>
-                            <div className="px-3 mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                    PENGATURAN
-                                </span>
-                            </div>
-                            <nav className="space-y-1">
-                                {settingNavItems.map((item) => (
-                                    <NavLink
-                                        key={item.to}
-                                        to={item.to}
-                                        className={({ isActive }) =>
-                                            `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                                                isActive
-                                                    ? "bg-[#1E293B] text-white shadow-sm"
-                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                            }`
-                                        }
-                                    >
-                                        <AdminIcon name={item.icon} className="w-4 h-4 shrink-0" />
-                                        <span>{item.label}</span>
-                                    </NavLink>
-                                ))}
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            {/* RIGHT MAIN WRAPPER */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* TOPBAR HEADER */}
-                <header className="h-18 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
-                    <div className="flex items-center gap-3 min-w-0">
-                        {/* Mobile hamburger */}
+                    {/* Notifikasi: antrean konten nyata dari API dashboard */}
+                    <div className="relative" ref={notifRef}>
                         <button
                             type="button"
-                            onClick={() => setMenuOpen(true)}
-                            aria-label="Buka menu"
-                            className="p-2 rounded-xl border border-slate-200 lg:hidden text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
+                            onClick={() => {
+                                setNotifOpen(!notifOpen);
+                                setProfileOpen(false);
+                            }}
+                            aria-label={`Notifikasi (${alertTotal})`}
+                            aria-haspopup="true"
+                            aria-expanded={notifOpen}
+                            className="relative w-10 h-10 rounded-full grid place-items-center hover:bg-brand-softmist text-brand-ink transition-colors"
                         >
-                            <AdminIcon name="menu" className="w-5 h-5" />
+                            <AdminIcon name="bell" className="w-5 h-5" />
+                            {alertTotal > 0 && (
+                                <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-darkred text-white text-[10px] font-bold grid place-items-center ring-2 ring-white">
+                                    {alertTotal > 99 ? "99+" : alertTotal}
+                                </span>
+                            )}
                         </button>
 
-                        {/* Page Title */}
-                        <div>
-                            <h1 className="font-bold text-base sm:text-xl tracking-tight text-[#0F172A] truncate leading-tight">
-                                {pageTitle}
-                            </h1>
-                        </div>
+                        {notifOpen && (
+                            <div className="absolute right-0 mt-2 w-[min(22rem,calc(100vw-1.5rem))] bg-white rounded-card border border-brand-ink/10 shadow-softpill overflow-hidden z-50 animate-fade-in">
+                                <div className="px-4 py-3 border-b border-brand-ink/10 flex justify-between items-center bg-brand-paper">
+                                    <span className="font-display uppercase tracking-wide text-sm text-brand-ink">Perlu Tindakan</span>
+                                    <span className="text-[11px] text-brand-darkred font-bold bg-brand-darkred/10 px-2 py-0.5 rounded-full">{alertTotal} antrean</span>
+                                </div>
+                                <div className="divide-y divide-brand-ink/5 max-h-80 overflow-y-auto">
+                                    {alerts.length > 0 ? (
+                                        alerts.map((alert) => (
+                                            <Link key={alert.title} to={alert.to} className="flex gap-3 px-4 py-3 hover:bg-brand-paper transition-colors">
+                                                <span className="mt-0.5 min-w-7 h-7 px-1.5 rounded-full bg-brand-darkred text-white text-xs font-bold grid place-items-center shrink-0">
+                                                    {alert.count}
+                                                </span>
+                                                <span>
+                                                    <span className="block text-sm font-semibold text-brand-ink">{alert.title}</span>
+                                                    <span className="block text-xs text-brand-muted mt-0.5">{alert.desc}</span>
+                                                </span>
+                                            </Link>
+                                        ))
+                                    ) : (
+                                        <div className="px-4 py-8 text-center">
+                                            <AdminIcon name="checkCircle" className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                                            <p className="text-sm font-semibold text-brand-ink">Semua beres</p>
+                                            <p className="text-xs text-brand-muted mt-0.5">Tidak ada konten yang menunggu tindakan.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Topbar Right Controls */}
-                    <div className="flex items-center gap-2.5 sm:gap-4">
-                        {/* Administrator Status Pill */}
-                        <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>[Administrator Aktif]</span>
-                        </div>
-
-                        {/* Notification Button & Dropdown */}
-                        <div className="relative" ref={notifRef}>
-                            <button
-                                type="button"
-                                onClick={() => setNotifOpen(!notifOpen)}
-                                aria-label="Notifikasi"
-                                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors cursor-pointer relative"
-                            >
-                                <AdminIcon name="bell" className="w-4 h-4" />
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#8B1D24]" />
-                            </button>
-
-                            {notifOpen && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl z-50 p-4 text-xs animate-fade-up">
-                                    <div className="font-bold border-b border-slate-100 pb-2.5 mb-2.5 flex items-center justify-between text-slate-900">
-                                        <span>Notifikasi Sistem</span>
-                                        <span className="text-[10px] text-[#8B1D24] bg-red-50 px-2 py-0.5 rounded-full font-bold uppercase">
-                                            LIVE
-                                        </span>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <div className="p-2.5 rounded-xl bg-red-50/60 border border-red-100">
-                                            <p className="font-bold text-[11px] text-[#8B1D24]">Panel Terhubung ke Backend</p>
-                                            <p className="text-[11px] text-slate-600 mt-0.5">
-                                                API backend Laravel siap melayani manajemen berita, program, dan fasilitas.
-                                            </p>
-                                        </div>
-                                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <p className="font-bold text-[11px] text-slate-800">Situs Publik Aktif</p>
-                                            <p className="text-[11px] text-slate-600 mt-0.5">
-                                                Perubahan yang disimpan langsung diperbarui di portal publik SMK Pelita Nusantara.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                    {/* Profil */}
+                    <div className="relative" ref={profileRef}>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setProfileOpen(!profileOpen);
+                                setNotifOpen(false);
+                            }}
+                            aria-label="Menu profil"
+                            aria-haspopup="true"
+                            aria-expanded={profileOpen}
+                            className="flex items-center gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full hover:bg-brand-softmist transition-colors"
+                        >
+                            {user?.foto_profil ? (
+                                <img src={user.foto_profil} alt="" className="w-8 h-8 rounded-full object-cover" />
+                            ) : (
+                                <span className="w-8 h-8 rounded-full grid place-items-center text-white text-xs font-bold bg-brand-darkred">{initials}</span>
                             )}
-                        </div>
+                            <span className="hidden sm:block text-left leading-tight">
+                                <span className="block text-xs font-bold text-brand-ink max-w-[140px] truncate">{displayName}</span>
+                                <span className="block text-[10px] font-semibold uppercase tracking-wider text-brand-muted">{roleLabel}</span>
+                            </span>
+                        </button>
 
-                        {/* Profile Avatar Widget & Dropdown */}
-                        <div className="relative" ref={profileRef}>
-                            <button
-                                type="button"
-                                onClick={() => setProfileOpen(!profileOpen)}
-                                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-full hover:bg-slate-100 bg-white cursor-pointer transition-colors border border-slate-200/60"
-                            >
-                                <div className="w-8 h-8 rounded-full bg-[#1E293B] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                    {initials}
-                                </div>
-                                <div className="hidden sm:block text-left">
-                                    <div className="text-xs font-bold text-[#0F172A] leading-tight max-w-[120px] truncate">
-                                        {displayName}
+                        {profileOpen && (
+                            <div className="absolute right-0 mt-2 w-72 bg-white rounded-card border border-brand-ink/10 shadow-softpill p-4 z-50 animate-fade-in">
+                                <div className="text-center pb-3 border-b border-brand-ink/10">
+                                    <div className="w-14 h-14 mx-auto rounded-full grid place-items-center text-white text-lg font-bold bg-brand-darkred">{initials}</div>
+                                    <div className="mt-2 font-bold text-brand-ink text-sm">{displayName}</div>
+                                    <div className="text-xs text-brand-muted">{user?.email ?? user?.username ?? "-"}</div>
+                                    <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-softmist text-brand-ink">
+                                        {roleLabel}
+                                        {user?.nomor_induk ? ` · ${user.nomor_induk}` : ""}
                                     </div>
-                                    <div className="text-[10px] text-[#64748B] leading-tight font-medium uppercase">{roleLabel}</div>
                                 </div>
-                                <AdminIcon name="chevronRight" className="w-3.5 h-3.5 text-slate-400 rotate-90" />
-                            </button>
 
-                            {profileOpen && (
-                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl border border-slate-100 shadow-xl z-50 p-2 text-xs animate-fade-up">
-                                    <div className="px-3 py-2.5 border-b border-slate-100 mb-1">
-                                        <div className="font-bold text-slate-900 truncate">{displayName}</div>
-                                        <div className="text-[10px] text-slate-500 truncate">
-                                            {user?.email ?? user?.username ?? "admin"}
-                                        </div>
-                                        <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-700 tracking-wider uppercase">
-                                            {roleLabel}
-                                        </span>
+                                <div className="mt-3 space-y-0.5">
+                                    <Link to="/admin" className={dropdownLink}>
+                                        <AdminIcon name="dashboard" className="w-4 h-4 text-brand-muted" />
+                                        <span>Dashboard Admin</span>
+                                    </Link>
+                                    <Link to="/admin/akun" className={dropdownLink}>
+                                        <AdminIcon name="user" className="w-4 h-4 text-brand-muted" />
+                                        <span>Profil Saya ({user?.username ?? "admin"})</span>
+                                    </Link>
+                                    <a href="/" target="_blank" rel="noreferrer" className={dropdownLink}>
+                                        <AdminIcon name="external" className="w-4 h-4 text-brand-muted" />
+                                        <span>Web Publik Sekolah</span>
+                                    </a>
+                                    <div className="pt-1 mt-1 border-t border-brand-ink/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => void logout()}
+                                            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-brand-darkred hover:bg-brand-darkred/5 transition-colors"
+                                        >
+                                            <AdminIcon name="logout" className="w-4 h-4" />
+                                            <span>Keluar Sesi</span>
+                                        </button>
                                     </div>
-                                    <Link
-                                        to="/admin"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-slate-700 font-medium transition-colors"
-                                    >
-                                        <AdminIcon name="dashboard" className="w-4 h-4 text-slate-400" />
-                                        <span>Dashboard Utama</span>
-                                    </Link>
-                                    <Link
-                                        to="/admin/berita"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-slate-700 font-medium transition-colors"
-                                    >
-                                        <AdminIcon name="news" className="w-4 h-4 text-slate-400" />
-                                        <span>Kelola Berita</span>
-                                    </Link>
-                                    <Link
-                                        to="/admin/akun"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-slate-700 font-medium transition-colors"
-                                    >
-                                        <AdminIcon name="user" className="w-4 h-4 text-slate-400" />
-                                        <span>Pengaturan Akun</span>
-                                    </Link>
-                                    <div className="border-t border-slate-100 my-1" />
-                                    <button
-                                        type="button"
-                                        onClick={() => void logout()}
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-red-700 hover:bg-red-50 font-bold transition-colors cursor-pointer text-left"
-                                    >
-                                        <AdminIcon name="logout" className="w-4 h-4 text-red-600" />
-                                        <span>Keluar Sesi Admin</span>
-                                    </button>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-                </header>
+                </div>
+            </header>
 
-                {/* MAIN BODY CONTENT */}
-                <main className="flex-1 p-4 sm:p-6 lg:p-8">
-                    <div className="max-w-7xl mx-auto w-full">
+            <div className="flex flex-1 min-h-[calc(100vh-4rem)]">
+                {/* Backdrop sidebar mobile */}
+                {menuOpen && <div onClick={() => setMenuOpen(false)} className="fixed inset-0 bg-brand-ink/40 z-40 lg:hidden animate-fade-in" />}
+
+                {/* SIDEBAR */}
+                <aside
+                    className={`w-[264px] shrink-0 fixed lg:sticky top-16 h-[calc(100vh-4rem)] left-0 z-40 bg-white border-r border-brand-ink/10 flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+                        menuOpen ? "translate-x-0" : "-translate-x-full"
+                    }`}
+                    aria-label="Navigasi admin CMS"
+                >
+                    <div className="flex-1 overflow-y-auto p-3 space-y-5">
+                        <Link
+                            to="/admin/berita/baru"
+                            className="flex items-center gap-3 h-12 rounded-full bg-linear-to-r from-brand-signal to-brand-darkred text-white px-4 shadow-[0_4px_14px_0_rgba(122,16,24,0.25)] hover:shadow-[0_6px_20px_0_rgba(122,16,24,0.35)] hover:-translate-y-px transition-all"
+                        >
+                            <AdminIcon name="plus" className="w-4 h-4" />
+                            <span className="text-sm font-semibold">Tulis Berita Baru</span>
+                        </Link>
+
+                        <nav className="space-y-0.5">
+                            <SectionLabel>{navGroups[0].label}</SectionLabel>
+                            {navGroups[0].items.map((item) => <SideLink key={item.to} item={item} />)}
+                        </nav>
+
+                        <nav className="space-y-0.5">
+                            <SectionLabel>Halaman Publik</SectionLabel>
+                            {publicLinks.map((item) => (
+                                <a
+                                    key={item.href}
+                                    href={item.href}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="group flex items-center justify-between h-10 px-3 rounded-xl text-[13px] font-medium text-brand-ink hover:bg-brand-paper transition-colors"
+                                >
+                                    <span className="flex items-center gap-3">
+                                        <AdminIcon name={item.icon} className="w-4 h-4 text-brand-muted group-hover:text-brand-ink" />
+                                        {item.label}
+                                    </span>
+                                    <AdminIcon name="arrowUpRight" className="w-3.5 h-3.5 text-brand-muted group-hover:text-brand-darkred" />
+                                </a>
+                            ))}
+                        </nav>
+
+                        <DashboardShortcuts current="cms" />
+
+                        <nav className="space-y-0.5">
+                            <SectionLabel>{navGroups[1].label}</SectionLabel>
+                            {navGroups[1].items.map((item) => <SideLink key={item.to} item={item} />)}
+                        </nav>
+                    </div>
+
+                    {/* Kaki sidebar */}
+                    <div className="p-3 border-t border-brand-ink/10">
+                        <a href="/" target="_blank" rel="noreferrer" className="group block rounded-card bg-brand-ink text-white p-4 relative overflow-hidden">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#F5C2C7]">Situs Publik</span>
+                            <span className="mt-1 flex items-center justify-between font-display text-base uppercase tracking-wide">
+                                Web SMK Penus
+                                <AdminIcon name="arrowUpRight" className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                            </span>
+                        </a>
+                    </div>
+                </aside>
+
+                {/* KONTEN */}
+                <div className="flex-1 min-w-0 flex flex-col">
+                    <main className="flex-1 w-full max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8">
                         <Outlet />
-                    </div>
-                </main>
+                    </main>
 
-                {/* FOOTER STRIP */}
-                <footer className="bg-white/80 border-t border-slate-200/80 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-                    <div>
-                        <span className="font-bold text-slate-700">Sistem Informasi Landing Page</span> &copy;{" "}
-                        {new Date().getFullYear()} SMK Plus Pelita Nusantara Bogor. Hak Cipta Dilindungi.
-                    </div>
-                    <div className="flex items-center gap-3 text-[11px] font-medium text-slate-400">
-                        <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span className="text-slate-600 font-semibold">STATUS: ONLINE</span>
+                    <footer className="border-t border-brand-ink/10 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-brand-ink/50">
+                        <span>
+                            <b className="text-brand-ink/80">Sistem Informasi Landing Page</b> &copy; {new Date().getFullYear()} SMK Plus Pelita Nusantara Bogor
                         </span>
-                        <span>•</span>
-                        <span>CMS PANEL v1.0.0</span>
-                    </div>
-                </footer>
+                        <span>CMS Panel</span>
+                    </footer>
+                </div>
             </div>
         </div>
     );

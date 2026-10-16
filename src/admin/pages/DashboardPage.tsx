@@ -1,662 +1,313 @@
-import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/auth-context";
-import AdminIcon from "../components/AdminIcon";
+import AdminIcon, { type AdminIconName } from "../components/AdminIcon";
 import PanelState from "../components/PanelState";
 import StatusBadge from "../components/StatusBadge";
 import Thumbnail from "../components/Thumbnail";
+import { buttonPrimary, buttonSecondary, cardClass } from "../components/ui";
+import { SketchCorner, SketchUnderline } from "../../components/SketchFrame";
+import { dashboardPath, type DashboardSummary } from "../lib/dashboard";
 import { formatDateTime, useDocumentTitle } from "../lib/format";
-import { newsCategories, type News } from "../../data/news";
 import type { Resource } from "../../lib/api";
 import { useApi } from "../../lib/useApi";
 
-type Dashboard = {
-    news: { total: number; published: number; scheduled: number; draft: number };
-    programs: number;
-    facilities: number;
-    recent_news: News[];
-};
+// Beranda panel admin CMS. Susunannya sama dengan dashboard admin BKK & PPDB:
+// sapaan + "Perlu Tindakan", empat angka utama, lalu tabel & ringkasan di bawahnya.
+
+function greeting() {
+    const hour = new Date().getHours();
+    if (hour < 11) return "Selamat pagi";
+    if (hour < 15) return "Selamat siang";
+    if (hour < 18) return "Selamat sore";
+    return "Selamat malam";
+}
+
+function SectionTitle({ children }: { children: string }) {
+    return(
+        <h2 className="font-display text-xl font-bold uppercase tracking-wide text-brand-ink">
+            <SketchUnderline size="sm">{children}</SketchUnderline>
+        </h2>
+    )
+}
 
 export default function DashboardPage() {
     useDocumentTitle("Dashboard Utama");
     const { user } = useAuth();
-    const navigate = useNavigate();
-    const { data, error, reload } = useApi<Resource<Dashboard>>("/admin/dashboard");
+    const { data, error, reload } = useApi<Resource<DashboardSummary>>(dashboardPath);
     const stats = data?.data;
 
-    // Filter bar state
-    const [searchQuery, setSearchQuery] = useState("");
-    const [filterCategory, setFilterCategory] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
+    const displayName = user?.nama_lengkap ?? user?.name ?? user?.username ?? "Administrator";
+    const firstName = displayName.trim().split(/\s+/)[0];
 
-    const handleFilterSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        const searchParams = new URLSearchParams();
-        if (searchQuery.trim()) searchParams.set("search", searchQuery.trim());
-        if (filterCategory) searchParams.set("category", filterCategory);
-        if (filterStatus) searchParams.set("status", filterStatus);
-        navigate(`/admin/berita?${searchParams.toString()}`);
-    };
+    if (!stats) return <PanelState error={error} onRetry={reload} label="Memuat ringkasan dasbor" />;
 
-    const totalNews = stats?.news.total ?? 0;
-    const publishedNews = stats?.news.published ?? 0;
-    const draftNews = stats?.news.draft ?? 0;
-    const publishedRate = totalNews > 0 ? Math.round((publishedNews / totalNews) * 100) : 0;
-    const draftRate = totalNews > 0 ? Math.round((draftNews / totalNews) * 100) : 0;
+    const { total, published, scheduled, draft } = stats.news;
+    const percent = (value: number) => (total > 0 ? Math.round((value / total) * 100) : 0);
+
+    const todo = [
+        { count: draft, label: "draf berita belum terbit", to: "/admin/berita?status=draft" },
+        { count: scheduled, label: "berita terjadwal akan terbit", to: "/admin/berita?status=scheduled" },
+    ].filter((item) => item.count > 0);
+
+    const kpis: { label: string; value: number; icon: AdminIconName; note: string; to: string; alert?: boolean }[] = [
+        { label: "Total Berita", value: total, icon: "news", note: `${published} terbit · ${scheduled} terjadwal`, to: "/admin/berita" },
+        { label: "Draf Berita", value: draft, icon: "pencil", note: "Belum tampil di situs sekolah", to: "/admin/berita?status=draft", alert: draft > 0 },
+        { label: "Program Unggulan", value: stats.programs, icon: "star", note: "Tampil di beranda situs", to: "/admin/program" },
+        { label: "Fasilitas & Sarana", value: stats.facilities, icon: "building", note: "Lab, bengkel & ruang praktik", to: "/admin/fasilitas" },
+    ];
+
+    const statusRows = [
+        { label: "Terbit", value: published, tone: "bg-brand-darkred", to: "/admin/berita?status=published" },
+        { label: "Terjadwal", value: scheduled, tone: "bg-brand-blue", to: "/admin/berita?status=scheduled" },
+        { label: "Draf", value: draft, tone: "bg-brand-ink/20", to: "/admin/berita?status=draft" },
+    ];
+
+    const quickActions: { label: string; icon: AdminIconName; to: string }[] = [
+        { label: "Tulis berita baru", icon: "news", to: "/admin/berita/baru" },
+        { label: "Tambah program unggulan", icon: "star", to: "/admin/program/baru" },
+        { label: "Tambah Talent Day", icon: "sparkles", to: "/admin/talent-day/baru" },
+        { label: "Tambah ekstrakurikuler", icon: "trophy", to: "/admin/ekskul/baru" },
+        { label: "Tambah fasilitas", icon: "building", to: "/admin/fasilitas/baru" },
+    ];
 
     return (
-        <div className="space-y-5">
-            {/* SUB-NAVIGATION BAR & ACTION CTAS */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
-                {/* Sub-tabs */}
-                <div className="flex items-center flex-wrap gap-1.5">
-                    <Link
-                        to="/admin"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#1E293B] text-white shadow-sm transition-all"
-                    >
-                        Overview
-                    </Link>
-                    <Link
-                        to="/admin/berita"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Berita Sekolah
-                    </Link>
-                    <Link
-                        to="/admin/program"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Program Unggulan
-                    </Link>
-                    <Link
-                        to="/admin/talent-day"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Talent Day
-                    </Link>
-                    <Link
-                        to="/admin/ekskul"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Ekstrakurikuler
-                    </Link>
-                    <Link
-                        to="/admin/fasilitas"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Fasilitas Sarana
-                    </Link>
-                    <Link
-                        to="/admin/akun"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                        Pengaturan Akun
-                    </Link>
-                    <a
-                        href="/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-1"
-                    >
-                        <span>Lihat Publik</span>
-                        <AdminIcon name="external" className="w-3 h-3" />
-                    </a>
-                </div>
-
-                {/* Action CTAs */}
-                <div className="flex items-center gap-2.5">
-                    <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                        <AdminIcon name="printer" className="w-3.5 h-3.5 text-[#8B1D24]" />
-                        <span>Cetak Ringkasan</span>
-                    </button>
-
-                    <Link
-                        to="/admin/berita/baru"
-                        className="px-4 py-2 rounded-xl bg-[#8B1D24] hover:bg-[#72151B] text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm"
-                    >
-                        <AdminIcon name="plus" className="w-3.5 h-3.5" />
-                        <span>Tulis Berita</span>
-                    </Link>
-                </div>
-            </div>
-
-            {!stats ? (
-                <PanelState error={error} onRetry={reload} label="Memuat ringkasan dasbor" />
-            ) : (
-                <>
-                    {/* WELCOME HERO BANNER */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-sm relative overflow-hidden">
-                        {/* Decorative background glows */}
-                        <div className="absolute -right-16 -top-16 w-64 h-64 bg-red-50/60 rounded-full blur-3xl pointer-events-none" />
-                        <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-slate-100/60 rounded-full blur-3xl pointer-events-none" />
-
-                        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                            {/* Left Info & Greeting */}
-                            <div className="max-w-2xl">
-                                <div className="flex items-center gap-2.5 mb-2.5">
-                                    <span className="px-3 py-1 rounded-full bg-[#1E293B] text-white text-xs font-semibold shadow-xs">
-                                        Administrator Sekolah
-                                    </span>
-                                    <span className="text-xs font-medium text-slate-500">
-                                        SMK Plus Pelita Nusantara Bogor
-                                    </span>
-                                </div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
-                                    Halo, {user?.name ?? "Administrator"} 👋
-                                </h1>
-                                <p className="text-xs sm:text-sm text-[#64748B] mt-2 leading-relaxed">
-                                    Selamat datang di panel kontrol landing page. Anda memiliki{" "}
-                                    <span className="font-bold text-[#8B1D24]">{stats.news.draft} draf berita</span> yang
-                                    belum dipublikasikan dan total{" "}
-                                    <span className="font-bold text-slate-800">{stats.news.total} konten berita</span> aktif
-                                    di situs sekolah.
-                                </p>
-                            </div>
-
-                            {/* Right Progress Widget */}
-                            <div className="bg-slate-50/90 border border-slate-200/70 rounded-2xl p-4 sm:p-5 sm:min-w-[280px] shadow-2xs flex flex-col justify-between">
-                                <div className="flex items-center justify-between gap-3 mb-2">
-                                    <span className="text-xs font-semibold text-slate-700">Rasio Publikasi Berita</span>
-                                    <span className="text-sm font-bold text-[#0F172A]">{publishedRate}%</span>
-                                </div>
-
-                                {/* Thin Maroon Progress Bar with Rounded Ends */}
-                                <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden my-1">
-                                    <div
-                                        className="bg-[#8B1D24] h-full rounded-full transition-all duration-500"
-                                        style={{ width: `${publishedRate}%` }}
-                                    />
-                                </div>
-
-                                <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between">
-                                    <Link
-                                        to="/admin/berita"
-                                        className="text-xs font-bold text-[#8B1D24] hover:text-[#72151B] inline-flex items-center gap-1 transition-colors"
-                                    >
-                                        <span>Kelola berita sekarang</span>
-                                        <span>&rarr;</span>
-                                    </Link>
-                                    <span className="text-[10px] tabular-nums text-slate-400">
-                                        {publishedNews}/{totalNews}
-                                    </span>
-                                </div>
-                            </div>
+        <div className="space-y-8 animate-fade-in">
+            {/* HERO */}
+            <section className={`${cardClass} relative p-6 sm:p-8 overflow-hidden`}>
+                <div className="absolute -right-20 -top-24 w-72 h-72 rounded-full bg-brand-darkred/[0.04] pointer-events-none" />
+                <div className="relative grid lg:grid-cols-[1fr_340px] gap-8 items-center">
+                    <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-darkred">
+                            Pusat Kendali Konten · Portal SMK Plus Pelita Nusantara
+                        </p>
+                        <h1 className="mt-3 font-display text-3xl sm:text-4xl lg:text-[44px] font-bold uppercase tracking-wide text-brand-ink leading-[1.1]">
+                            {greeting()}, <SketchUnderline size="md">{firstName}</SketchUnderline>
+                        </h1>
+                        <p className="mt-5 text-sm sm:text-[15px] text-brand-ink/70 leading-relaxed max-w-2xl">
+                            Situs sekolah saat ini memuat <b className="text-brand-ink">{published} berita terbit</b>,{" "}
+                            <b className="text-brand-ink">{stats.programs} program unggulan</b>, dan{" "}
+                            <b className="text-brand-ink">{stats.facilities} fasilitas</b>.{" "}
+                            {draft > 0 ? (
+                                <>
+                                    Masih ada <b className="text-brand-darkred">{draft} draf</b> yang belum dipublikasikan.
+                                </>
+                            ) : (
+                                "Semua berita sudah dipublikasikan."
+                            )}
+                        </p>
+                        <div className="mt-6 flex flex-wrap gap-2.5">
+                            <Link to="/admin/berita/baru" className={buttonPrimary}>
+                                <AdminIcon name="plus" className="w-4 h-4" />
+                                Tulis Berita
+                            </Link>
+                            <Link to="/admin/berita" className={buttonSecondary}>
+                                <AdminIcon name="news" className="w-4 h-4 text-brand-darkred" />
+                                Kelola Berita
+                            </Link>
+                            <span className="hidden sm:block w-px h-6 bg-brand-ink/10 self-center mx-0.5" aria-hidden="true" />
+                            <a
+                                href="/"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 h-10 px-4 rounded-full text-brand-ink text-sm font-semibold hover:bg-brand-softmist transition-colors"
+                            >
+                                <AdminIcon name="external" className="w-4 h-4 text-brand-ink/60" />
+                                Lihat Situs
+                            </a>
                         </div>
                     </div>
 
-                    {/* 4 METRIC COUNTERS GRID */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                        {/* 1. Total Berita */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                    Total Berita
-                                </span>
-                                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shadow-xs">
-                                    <AdminIcon name="news" className="w-4 h-4" />
-                                </div>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight">
-                                    {stats.news.total}
-                                </div>
-                                <div className="text-xs text-slate-500 mt-1">Artikel & pembaruan berita</div>
-                            </div>
-
-                            <div className="flex items-end justify-between pt-3 border-t border-slate-100">
-                                <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                                    <AdminIcon name="trendingUp" className="w-3.5 h-3.5" />
-                                    <span>+{stats.news.published} terbit</span>
-                                </span>
-
-                                {/* Mini Bar Representation (Slate/Navy) */}
-                                <div className="flex items-end gap-1 h-6">
-                                    <span className="w-1.5 bg-slate-200 rounded-full h-2.5" />
-                                    <span className="w-1.5 bg-slate-300 rounded-full h-4" />
-                                    <span className="w-1.5 bg-slate-300 rounded-full h-3" />
-                                    <span className="w-1.5 bg-slate-400 rounded-full h-5" />
-                                    <span className="w-1.5 bg-[#1E293B] rounded-full h-6" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 2. Draf Berita (Maroon Accent) */}
-                        <div className="bg-white rounded-2xl border border-red-100 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-[#8B1D24]">
-                                    Draf Berita
-                                </span>
-                                <div className="w-9 h-9 rounded-xl bg-[#8B1D24] text-white flex items-center justify-center shadow-xs">
-                                    <AdminIcon name="pencil" className="w-4 h-4" />
-                                </div>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight">
-                                    {stats.news.draft}
-                                </div>
-                                <div className="text-xs text-slate-500 mt-1">Belum dipublikasikan ke situs</div>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-3 border-t border-red-50">
-                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                                    Perlu Tindakan
-                                </span>
-                                <Link
-                                    to="/admin/berita?status=draft"
-                                    className="text-xs font-bold text-[#8B1D24] hover:underline flex items-center gap-0.5"
-                                >
-                                    <span>Review</span>
-                                    <span>&rarr;</span>
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* 3. Program Unggulan */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                    Program Unggulan
-                                </span>
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                    <AdminIcon name="star" className="w-4 h-4" />
-                                </div>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight">
-                                    {stats.programs}
-                                </div>
-                                {/* Dual Color Progress Bar (Navy to Maroon) */}
-                                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
-                                    <div className="bg-gradient-to-r from-[#1E293B] to-[#8B1D24] h-full rounded-full w-full" />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500">
-                                <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Tampil di Beranda
-                                </span>
-                                <Link to="/admin/program" className="font-bold text-[#8B1D24] hover:underline">
-                                    Kelola &rarr;
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* 4. Sarana & Fasilitas */}
-                        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                    Fasilitas Sarana
-                                </span>
-                                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                    <AdminIcon name="building" className="w-4 h-4" />
-                                </div>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight">
-                                    {stats.facilities}
-                                </div>
-                                <div className="text-xs text-slate-500 mt-1">Ruang lab & bengkel praktik</div>
-                            </div>
-
-                            <div className="flex items-end justify-between pt-3 border-t border-slate-100">
-                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                    Galeri Fasilitas
-                                </span>
-
-                                {/* Mini Bar Representation (Maroon Tones) */}
-                                <div className="flex items-end gap-1 h-6">
-                                    <span className="w-1.5 bg-red-200 rounded-full h-2" />
-                                    <span className="w-1.5 bg-red-300 rounded-full h-3" />
-                                    <span className="w-1.5 bg-red-400 rounded-full h-4" />
-                                    <span className="w-1.5 bg-[#8B1D24]/80 rounded-full h-5" />
-                                    <span className="w-1.5 bg-[#8B1D24] rounded-full h-6" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* QUICK SEARCH & FILTER BAR */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 shadow-sm">
-                        <form onSubmit={handleFilterSubmit} className="flex flex-col sm:flex-row gap-2.5">
-                            <div className="flex-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <AdminIcon name="search" className="w-4 h-4" />
-                                </div>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Cari judul atau isi berita..."
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#F1F5F9] border-0 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-300 focus:outline-none transition-all"
-                                />
-                            </div>
-
-                            <select
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                                className="px-4 py-2.5 rounded-xl bg-[#F1F5F9] border-0 text-xs text-slate-700 font-medium focus:bg-white focus:ring-2 focus:ring-slate-300 focus:outline-none cursor-pointer"
-                            >
-                                <option value="">Semua Kategori</option>
-                                {newsCategories.map((c) => (
-                                    <option key={c} value={c}>
-                                        {c}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <select
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                className="px-4 py-2.5 rounded-xl bg-[#F1F5F9] border-0 text-xs text-slate-700 font-medium focus:bg-white focus:ring-2 focus:ring-slate-300 focus:outline-none cursor-pointer"
-                            >
-                                <option value="">Semua Status</option>
-                                <option value="published">Terbit</option>
-                                <option value="scheduled">Terjadwal</option>
-                                <option value="draft">Draf</option>
-                            </select>
-
-                            <button
-                                type="submit"
-                                className="px-5 py-2.5 rounded-xl bg-[#1E293B] hover:bg-slate-800 text-white text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-sm flex items-center justify-center gap-1.5"
-                            >
-                                <AdminIcon name="filter" className="w-3.5 h-3.5" />
-                                <span>Filter Berita</span>
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* TWO COLUMN HIGH-DENSITY SECTION: RECENT NEWS & CONTENT DISTRIBUTION */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                        {/* LEFT COLUMN (7 COLS): RECENT NEWS TABLE */}
-                        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
-                            {/* Table Header Strip */}
-                            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h2 className="font-bold text-base text-[#0F172A] tracking-tight">
-                                        Berita Terakhir Diubah
-                                    </h2>
-                                    <p className="text-xs text-slate-500 mt-0.5">Artikel dan publikasi terbaru di situs</p>
-                                </div>
-                                <Link
-                                    to="/admin/berita"
-                                    className="text-xs font-bold text-[#8B1D24] hover:text-[#72151B] flex items-center gap-1 transition-colors"
-                                >
-                                    <span>Lihat Semua ({stats.news.total})</span>
-                                    <span>&rarr;</span>
-                                </Link>
-                            </div>
-
-                            {/* Table Container */}
-                            <div className="overflow-x-auto flex-1">
-                                <table className="w-full text-left text-xs border-collapse">
-                                    <thead>
-                                        <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                                            <th className="py-3 px-4">Info Berita</th>
-                                            <th className="py-3 px-4">Kategori</th>
-                                            <th className="py-3 px-4">Tanggal</th>
-                                            <th className="py-3 px-4">Status</th>
-                                            <th className="py-3 px-4 text-right">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {stats.recent_news.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={5} className="py-10 text-center text-xs text-slate-400">
-                                                    Belum ada artikel berita yang dibuat.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            stats.recent_news.map((item) => (
-                                                <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                                                    <td className="py-3 px-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <Thumbnail src={item.image} className="h-10 w-12 rounded-lg" />
-                                                            <div className="min-w-0 max-w-[200px] sm:max-w-xs">
-                                                                <Link
-                                                                    to={`/admin/berita/${item.id}`}
-                                                                    className="font-bold text-slate-900 text-xs hover:text-[#8B1D24] transition-colors truncate block"
-                                                                    title={item.title}
-                                                                >
-                                                                    {item.title}
-                                                                </Link>
-                                                                <p className="text-[11px] text-slate-400 truncate">
-                                                                    {item.excerpt || "Tidak ada ringkasan"}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-3 px-4 whitespace-nowrap">
-                                                        <span className="font-semibold text-slate-700 text-xs">
-                                                            {item.category}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-3 px-4 whitespace-nowrap text-slate-500 text-[11px]">
-                                                        {formatDateTime(item.date)}
-                                                    </td>
-                                                    <td className="py-3 px-4 whitespace-nowrap">
-                                                        <StatusBadge status={item.status} />
-                                                    </td>
-                                                    <td className="py-3 px-4 text-right whitespace-nowrap">
-                                                        <Link
-                                                            to={`/admin/berita/${item.id}`}
-                                                            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-[#1E293B] hover:text-white text-slate-700 transition-colors inline-block"
-                                                        >
-                                                            Detail / Edit
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Table Footer */}
-                            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs">
-                                <span className="text-slate-500">
-                                    Menampilkan {stats.recent_news.length} berita terakhir diubah
-                                </span>
-                                <Link
-                                    to="/admin/berita"
-                                    className="font-bold text-[#8B1D24] hover:underline flex items-center gap-1"
-                                >
-                                    <span>Buka Semua Berita</span>
-                                    <span>&rarr;</span>
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* RIGHT COLUMN (5 COLS): DISTRIBUSI KONTEN & AKSES CEPAT */}
-                        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
-                            {/* Header Strip */}
-                            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h2 className="font-bold text-base text-[#0F172A] tracking-tight">
-                                        Distribusi Konten
-                                    </h2>
-                                    <p className="text-xs text-slate-500 mt-0.5">Sebaran dan status konten portal</p>
-                                </div>
-                                <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold">
-                                    Live CMS
-                                </span>
-                            </div>
-
-                            {/* Content Breakdown List */}
-                            <div className="p-4 space-y-4 flex-1">
-                                {/* Bar 1: Berita Terbit */}
-                                <div>
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-xs text-slate-800">Berita Terbit</span>
-                                            <span className="text-[11px] text-slate-400">Tampil untuk umum</span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="tabular-nums font-bold text-xs text-[#8B1D24]">
-                                                {publishedNews}
+                    {/* Perlu tindakan */}
+                    <div className="relative rounded-card bg-brand-paper p-5">
+                        <SketchCorner className="-left-2 -top-2 w-20 h-8" />
+                        <SketchCorner delay={350} className="-right-2 -bottom-2 rotate-180 w-20 h-8" />
+                        <h2 className="font-display text-lg font-bold uppercase tracking-wide text-brand-ink">Perlu Tindakan</h2>
+                        <ul className="mt-3 space-y-1.5">
+                            {todo.length > 0 ? (
+                                todo.map((item) => (
+                                    <li key={item.label}>
+                                        <Link to={item.to} className="group flex items-center gap-3 rounded-xl px-2 py-1.5 -mx-2 hover:bg-white transition-colors">
+                                            <span className="min-w-8 h-8 px-2 rounded-full bg-brand-darkred text-white font-display text-sm grid place-items-center">
+                                                {item.count}
                                             </span>
-                                            <span className="text-[11px] text-slate-400"> / {totalNews}</span>
-                                        </div>
-                                    </div>
-                                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                        <div
-                                            className="bg-gradient-to-r from-[#8B1D24] to-[#A11B24] h-full rounded-full transition-all duration-300"
-                                            style={{ width: `${publishedRate}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                                        <span>{publishedRate}% telah dipublikasikan</span>
-                                        <span>Status: Aktif</span>
-                                    </div>
-                                </div>
-
-                                {/* Bar 2: Draf Berita */}
-                                <div>
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-xs text-slate-800">Draf Berita</span>
-                                            <span className="text-[11px] text-slate-400">Belum dipublikasikan</span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="tabular-nums font-bold text-xs text-amber-600">{draftNews}</span>
-                                            <span className="text-[11px] text-slate-400"> / {totalNews}</span>
-                                        </div>
-                                    </div>
-                                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                        <div
-                                            className="bg-amber-400 h-full rounded-full transition-all duration-300"
-                                            style={{ width: `${draftRate}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                                        <span>{draftRate}% berupa draf</span>
-                                        <span>Perlu review</span>
-                                    </div>
-                                </div>
-
-                                {/* Quick Action Tiles */}
-                                <div className="pt-2 border-t border-slate-100">
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
-                                        AKSI CEPAT TAMBAH KONTEN
-                                    </span>
-                                    <div className="grid gap-2">
-                                        <Link
-                                            to="/admin/berita/baru"
-                                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 text-xs font-semibold text-slate-800 transition-colors"
-                                        >
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-7 h-7 rounded-lg bg-red-50 text-[#8B1D24] flex items-center justify-center">
-                                                    <AdminIcon name="news" className="w-3.5 h-3.5" />
-                                                </div>
-                                                <span>Tulis Berita Baru</span>
-                                            </div>
-                                            <AdminIcon name="chevronRight" className="w-3.5 h-3.5 text-slate-400" />
+                                            <span className="text-sm text-brand-ink flex-1">{item.label}</span>
+                                            <AdminIcon name="chevronRight" className="w-4 h-4 text-brand-muted group-hover:text-brand-darkred group-hover:translate-x-0.5 transition-transform" />
                                         </Link>
-
-                                        <Link
-                                            to="/admin/program/baru"
-                                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 text-xs font-semibold text-slate-800 transition-colors"
-                                        >
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                                    <AdminIcon name="star" className="w-3.5 h-3.5" />
-                                                </div>
-                                                <span>Tambah Program Unggulan</span>
-                                            </div>
-                                            <AdminIcon name="chevronRight" className="w-3.5 h-3.5 text-slate-400" />
-                                        </Link>
-
-                                        <Link
-                                            to="/admin/fasilitas/baru"
-                                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 text-xs font-semibold text-slate-800 transition-colors"
-                                        >
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <AdminIcon name="building" className="w-3.5 h-3.5" />
-                                                </div>
-                                                <span>Tambah Fasilitas Sekolah</span>
-                                            </div>
-                                            <AdminIcon name="chevronRight" className="w-3.5 h-3.5 text-slate-400" />
-                                        </Link>
-                                    </div>
-                                </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="flex items-center gap-2 text-sm text-brand-ink/70 py-2">
+                                    <AdminIcon name="checkCircle" className="w-5 h-5 text-emerald-600" />
+                                    Tidak ada antrean, semua konten sudah terbit.
+                                </li>
+                            )}
+                        </ul>
+                        <div className="mt-4 pt-3 border-t border-brand-ink/10">
+                            <div className="flex justify-between text-xs font-semibold text-brand-ink">
+                                <span>Rasio publikasi berita</span>
+                                <span className="tabular-nums">{percent(published)}%</span>
                             </div>
-
-                            {/* Footer Action */}
-                            <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-                                <Link
-                                    to="/admin/akun"
-                                    className="text-xs font-semibold text-[#8B1D24] hover:underline flex items-center justify-between"
-                                >
-                                    <span>Kelola Profil & Pengaturan Akun</span>
-                                    <span>&rarr;</span>
-                                </Link>
+                            <div className="mt-1.5 h-2 rounded-full bg-white overflow-hidden">
+                                <div className="h-full rounded-full bg-brand-darkred transition-all duration-500" style={{ width: `${percent(published)}%` }} />
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    {/* QUICK ADMIN GUIDE STRIP (SOP) */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm">
-                        <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-                            <div>
-                                <span className="font-bold text-sm text-[#0F172A] tracking-tight block">
-                                    Alur Kerja Administrator Landing Page
-                                </span>
-                                <span className="text-xs text-slate-400">SMK Plus Pelita Nusantara Bogor</span>
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">
-                                SOP 2026/2027
+            {/* KPI */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" aria-label="Ringkasan konten">
+                {kpis.map((kpi) => (
+                    <Link
+                        key={kpi.label}
+                        to={kpi.to}
+                        className={`${cardClass} group p-5 hover:border-brand-darkred/25 hover:shadow-softpill transition-all ${kpi.alert ? "ring-1 ring-brand-darkred/20" : ""}`}
+                    >
+                        <div className="flex items-center justify-between">
+                            <span className={`text-xs font-bold uppercase tracking-wider ${kpi.alert ? "text-brand-darkred" : "text-brand-ink/60"}`}>{kpi.label}</span>
+                            <span
+                                className={`w-9 h-9 rounded-full grid place-items-center transition-colors ${
+                                    kpi.alert
+                                        ? "bg-brand-darkred text-white"
+                                        : "bg-brand-darkred/[0.07] text-brand-darkred group-hover:bg-brand-darkred group-hover:text-white"
+                                }`}
+                            >
+                                <AdminIcon name={kpi.icon} className="w-4 h-4" />
                             </span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-                                <div className="flex items-center gap-2.5 mb-2">
-                                    <span className="w-7 h-7 rounded-full bg-[#1E293B] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                        1
-                                    </span>
-                                    <span className="font-bold text-xs text-slate-900">Tulis & Susun Konten</span>
-                                </div>
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    Buka menu Berita, Program, atau Fasilitas untuk menambahkan materi informasi baru dan
-                                    mengunggah gambar resolusi tinggi.
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-                                <div className="flex items-center gap-2.5 mb-2">
-                                    <span className="w-7 h-7 rounded-full bg-[#8B1D24] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                        2
-                                    </span>
-                                    <span className="font-bold text-xs text-slate-900">Atur Status Publikasi</span>
-                                </div>
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    Simpan sebagai Draf untuk meninjau pratinjau terlebih dahulu, atau langsung Terbitkan
-                                    dengan tanggal terbit yang ditentukan.
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-                                <div className="flex items-center gap-2.5 mb-2">
-                                    <span className="w-7 h-7 rounded-full bg-[#1E293B] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                        3
-                                    </span>
-                                    <span className="font-bold text-xs text-slate-900">Periksa Tampilan Publik</span>
-                                </div>
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    Kunjungi portal publik sekolah untuk memastikan tampilan berita, kartu fasilitas, dan
-                                    program unggulan telah tampil sempurna.
-                                </p>
-                            </div>
-                        </div>
+                        <div className="mt-3 font-display text-5xl font-bold text-brand-ink leading-none">{kpi.value.toLocaleString("id-ID")}</div>
+                        <div className="mt-3 pt-3 border-t border-brand-ink/10 text-xs text-brand-ink/60">{kpi.note}</div>
+                    </Link>
+                ))}
+            </section>
+
+            {/* BERITA TERBARU + STATUS PUBLIKASI */}
+            <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                <div className={`${cardClass} xl:col-span-7 overflow-hidden flex flex-col`}>
+                    <div className="px-6 pt-6 pb-4 flex items-end justify-between gap-4">
+                        <SectionTitle>Berita Terakhir Diubah</SectionTitle>
+                        <Link to="/admin/berita" className="group inline-flex items-center gap-1 text-xs font-semibold text-brand-darkred shrink-0">
+                            Semua ({total})
+                            <AdminIcon name="arrowRight" className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
                     </div>
-                </>
-            )}
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm table-fixed min-w-[480px]">
+                            <colgroup>
+                                <col />
+                                <col className="w-[110px]" />
+                                <col className="w-[88px]" />
+                            </colgroup>
+                            <thead>
+                                <tr className="text-left text-[11px] font-bold uppercase tracking-wider text-brand-ink/50 border-y border-brand-ink/10 bg-brand-paper/60">
+                                    <th className="px-6 py-2.5">Berita</th>
+                                    <th className="px-3 py-2.5">Status</th>
+                                    <th className="px-6 py-2.5 text-right">
+                                        <span className="sr-only">Aksi</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-brand-ink/5">
+                                {stats.recent_news.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={3} className="px-6 py-12 text-center text-sm text-brand-ink/50">
+                                            Belum ada berita.{" "}
+                                            <Link to="/admin/berita/baru" className="font-semibold text-brand-darkred hover:underline">
+                                                Tulis berita pertama
+                                            </Link>
+                                            .
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    stats.recent_news.map((item) => (
+                                        <tr key={item.id} className="hover:bg-brand-paper/50">
+                                            <td className="px-6 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <Thumbnail src={item.image} className="h-10 w-14 rounded-lg" />
+                                                    <div className="min-w-0">
+                                                        <Link
+                                                            to={`/admin/berita/${item.id}`}
+                                                            className="block font-semibold text-brand-ink hover:text-brand-darkred truncate"
+                                                            title={item.title}
+                                                        >
+                                                            {item.title}
+                                                        </Link>
+                                                        <span className="block text-xs text-brand-ink/60 truncate">
+                                                            <span className="text-brand-darkred">{item.category}</span> · {formatDateTime(item.date)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-3">
+                                                <StatusBadge status={item.status} />
+                                            </td>
+                                            <td className="px-6 py-3 text-right">
+                                                <Link
+                                                    to={`/admin/berita/${item.id}`}
+                                                    className="inline-flex items-center h-8 px-3 rounded-full text-xs font-semibold bg-brand-softmist text-brand-ink hover:bg-brand-ink hover:text-white transition-colors"
+                                                >
+                                                    Edit
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div className={`${cardClass} xl:col-span-5 p-6 flex flex-col`}>
+                    <div className="flex items-start justify-between gap-4">
+                        <SectionTitle>Status Publikasi</SectionTitle>
+                        <span className="font-display text-2xl font-bold text-brand-ink">{total}</span>
+                    </div>
+                    <div className="mt-6 flex h-3 rounded-full overflow-hidden bg-brand-paper" role="img" aria-label="Komposisi status berita">
+                        {statusRows.map(
+                            (row) =>
+                                row.value > 0 && (
+                                    <div
+                                        key={row.label}
+                                        className={`${row.tone} h-full border-r-2 border-white last:border-r-0`}
+                                        style={{ width: `${(row.value / total) * 100}%` }}
+                                    />
+                                )
+                        )}
+                    </div>
+                    <ul className="mt-5 space-y-1">
+                        {statusRows.map((row) => (
+                            <li key={row.label}>
+                                <Link to={row.to} className="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5 -mx-2 hover:bg-brand-paper transition-colors">
+                                    <span className={`w-2.5 h-2.5 rounded-full ${row.tone}`} />
+                                    <span className="flex-1 text-brand-ink/80">{row.label}</span>
+                                    <span className="font-display font-bold text-base text-brand-ink">{row.value}</span>
+                                    <span className="w-10 text-right text-xs text-brand-ink/50">{percent(row.value)}%</span>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className="mt-5 pt-4 border-t border-brand-ink/10">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brand-ink/50">Tambah Konten</span>
+                        <ul className="mt-2 grid gap-1">
+                            {quickActions.map((action) => (
+                                <li key={action.to}>
+                                    <Link
+                                        to={action.to}
+                                        className="group flex items-center gap-3 rounded-xl px-2 py-1.5 -mx-2 text-sm text-brand-ink hover:bg-brand-paper transition-colors"
+                                    >
+                                        <span className="w-8 h-8 rounded-lg bg-brand-darkred/[0.07] text-brand-darkred grid place-items-center shrink-0 group-hover:bg-brand-darkred group-hover:text-white transition-colors">
+                                            <AdminIcon name={action.icon} className="w-4 h-4" />
+                                        </span>
+                                        <span className="flex-1">{action.label}</span>
+                                        <AdminIcon name="chevronRight" className="w-4 h-4 text-brand-muted group-hover:text-brand-darkred transition-colors" />
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
